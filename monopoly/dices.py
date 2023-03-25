@@ -13,6 +13,7 @@ class Dices:
             self.double_counter += 1
         else:
             self.double_counter = 0
+        print(f'dice 1: {self.first}, dice 2: {self.second}')
     
     def get_places(self) -> int:
         return self.first + self.second
