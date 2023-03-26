@@ -22,12 +22,12 @@ class Game:
                 player.pay_rent(item.get_rent(), item.get_owner())
         elif isinstance(item, Railroad):
             if item.get_owner() is None:
-                pass
+                player.buy_or_not(item)
             elif item.get_owner() != player:
                 player.pay_rent(2 ** (item.get_owner().get_number_of_railroads() - 1) * 25, item.get_owner())
         elif isinstance(item, Utility):
             if item.get_owner() is None:
-                pass
+                player.buy_or_not(item)
             elif item.get_owner() != player:
                 if item.get_owner().get_number_of_utilities() == 1:
                     player.pay_rent(dice.get_places() * 4, item.get_owner())
@@ -37,6 +37,8 @@ class Game:
             player.pay_rent(item)
 
     def turn(self, player: Player, board: Board, dice: Dice) -> None:
+        self.players[0].display()
+        self.players[1].display()
         player.build_or_not()
         if player.is_in_jail():
             check = input('Give 50$ to get out of jail?[y/n] ')

@@ -1,4 +1,5 @@
 # from player import Player
+from utilities import *
 
 building_costs = {
     'brown': 50,
@@ -62,7 +63,8 @@ class Property:
     def get_available_hotels() -> int:
         return available_hotels
 
-    def __init__(self, color, cost, rents):
+    def __init__(self, name, color, cost, rents):
+        self.name = name
         self.color = color
         self.cost = cost
         self.rents = rents
@@ -138,10 +140,13 @@ class Property:
             return self.building_price / 2
         return -1
 
-    def display_info(self):
-        print('------------')
+    def display(self, player):
+        print_with_color('------------', player)
+        print_with_color(f'{self.name}', player)
+        print_with_color(f'rent {self.rents[0]}$, w/1x🏠:{self.rents[1]}$, w/2x🏠:{self.rents[2]}, w/3x🏠:{self.rents[3]}$, w/4x🏠:{self.rents[4]}$, w/1x🏨:{self.rents[5]}$', player)
+        print_with_color(f'buildings cost {self.building_price}$', player)
         for _ in range(self.number_of_houses):
-            print('🏠')
+            print_with_color('🏠', player)
         for _ in range(self.number_of_hotels):
-            print('🏨')
-        print('------------')
+            print_with_color('🏨', player)
+        print_with_color('------------', player)

@@ -1,4 +1,6 @@
 from property import Property
+from railroad import Railroad
+from utility import Utility
 from utilities import *
 
 class Player:
@@ -6,9 +8,18 @@ class Player:
         self.money = 1500
         self.location = 0
         self.in_jail_counter = 0
-        self.properties = {}
-        self.number_of_railroads = 0
-        self.number_of_utilities = 0
+        self.properties = {
+            'brown': [],
+            'light blue': [],
+            'pink': [],
+            'orange': [],
+            'red': [],
+            'yellow': [],
+            'green': [],
+            'dark blue': []
+        }
+        self.railroads = []
+        self.utilities = []
         self.player_name = name
         self.is_bankrupt = False
     
@@ -53,24 +64,27 @@ class Player:
         print_with_color(f'player {self.player_name} just got out of jail.', self)
     
     def check_has_all_in_color_set(self, color: str) -> bool:
-        if color not in self.properties:
-            return False
         if color == 'brown' or color == 'dark blue':
             return len(self.properties[color]) == 2
         return len(self.properties[color]) == 3
 
     def buy(self, item) -> int:
-        self.money -= item.cost
+        self.lose_money(item.cost)
         item.set_owner(self)
-        if isinstance(item, Property) and item.color in self.properties:
+        if isinstance(item, Property):
             self.properties[item.color].append(item)
             if self.check_has_all_in_color_set(item.color):
                 for owned_property in self.properties[item.color]:
                     owned_property.has_all_in_color_set = True
+        elif isinstance(item, Railroad):
+            self.railroads.append(item)
+        elif isinstance(item, Utility):
+            self.utilities.append(item)
+
 
     def pay_rent(self, rent: int, other_player=None) -> None:
         if self.money >= rent:
-            self.money -= rent
+            self.lose_money(rent)
             if other_player != None:
                 other_player.gain_money(rent)
                 print_with_color(f'player {self.player_name} paid {rent}$ rent to {other_player.player_name}.', self)
@@ -82,7 +96,7 @@ class Player:
     def build(self, prop) -> bool:
         house_price = prop.build_house()
         if house_price != -1:
-            self.money -= house_price
+            self.lose_money(house_price)
             return True
         else:
             return False
@@ -96,24 +110,24 @@ class Player:
                 return -1
     
     def get_buildable_properties_on_color_set(self, color: str):
-        if self.properties[color][0] == self.properties[color][1] == self.properties[color][2]:
+        if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
             if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
                 yield self.properties[color][0]
             if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
                 yield self.properties[color][1]
             if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
                 yield self.properties[color][2]
-        elif self.properties[color][0] >= self.properties[color][1] == self.properties[color][2]:
+        elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
             if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
                 yield self.properties[color][1]
             if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
                 yield self.properties[color][2]
-        elif self.properties[color][1] >= self.properties[color][0] == self.properties[color][2]:
+        elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
             if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
                 yield self.properties[color][0]
             if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
                 yield self.properties[color][2]
-        elif self.properties[color][2] >= self.properties[color][0] == self.properties[color][1]:
+        elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
             if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
                 yield self.properties[color][0]
             if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
@@ -129,7 +143,7 @@ class Player:
             print_with_color('You can\'t build any houses!', self)
         else:
             for color in available_color_sets:
-                print_with_color(f'speaking of {self.properties[color]}...', self)
+                print_with_color(f'speaking of {color} set...', self)
                 if len(self.properties[color]) == 3:
                     for prop in self.get_buildable_properties_on_color_set(color):
                         build_house_on_property = input(f'Build house on property {prop}?[y/N] ')
@@ -146,16 +160,22 @@ class Player:
                             self.lose_money(prop.downgrade_houses_to_hotel())
     
     def get_number_of_railroads(self) -> int:
-        return self.number_of_railroads
+        return len(self.railroads)
     
     def get_number_of_utilities(self) -> int:
-        return self.number_of_utilities
+        return len(self.utilities)
     
-    def display_info(self) -> None:
-        print('=========================')
-        print(f'============ player {self.player_id} ===========')
-        print('\t==== properties =====')
+    def display(self) -> None:
+        print_with_color(f'============ player {self.player_name} ===========', self)
+        print_with_color(f'money: {self.money}', self)
+        print_with_color('\t==== properties =====', self)
         for color in self.properties:
-            print(f'\t==== {color} set ====')
+            print_with_color(f'\t==== {color} set ====', self)
             for property in self.properties[color]:
-                property.display_info()
+                property.display(self)
+        print_with_color('\t==== railroads  =====', self)
+        for railroad in self.railroads:
+            print_with_color(railroad, self)
+        print_with_color('\t==== utilities  =====', self)
+        for utility in self.utilities:
+            print_with_color(utility, self)
