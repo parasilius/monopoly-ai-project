@@ -1,6 +1,6 @@
-from player import Player
+# from player import Player
 
-house_costs = {
+building_costs = {
     'brown': 50,
     'light blue': 50,
     'pink': 100,
@@ -23,6 +23,45 @@ number_of_mortgaged_properties_in_color_set = {
 }
 
 class Property:
+    available_houses = 32
+    available_hotels = 12
+
+    @classmethod
+    def add_houses(num: int) -> int:
+        if available_houses + num > 32:
+            return -1
+        available_houses += num
+        return available_houses
+
+    @classmethod
+    def remove_houses(num: int) -> int:
+        if available_houses - num < 0:
+            return -1
+        available_houses -= num
+        return available_houses
+
+    @classmethod
+    def add_hotels(num: int) -> int:
+        if available_hotels + num > 12:
+            return -1
+        available_hotels += num
+        return available_hotels
+
+    @classmethod
+    def remove_hotels(num: int) -> int:
+        if available_hotels - num < 12:
+            return -1
+        available_hotels += num
+        return available_hotels
+    
+    @classmethod
+    def get_available_houses() -> int:
+        return available_houses
+    
+    @classmethod
+    def get_available_hotels() -> int:
+        return available_hotels
+
     def __init__(self, color, cost, rents):
         self.color = color
         self.cost = cost
@@ -33,14 +72,20 @@ class Property:
         self.mortgage_value = cost / 2
         self.owner = None
         self.has_all_in_color_set = False
-        self.house_price = house_costs[color]
+        self.building_price = building_costs[color]
         global number_of_mortgaged_properties_in_color_set
     
-    def set_owner(self, owner: Player) -> None:
+    def set_owner(self, owner) -> None:
         self.owner = owner
     
-    def get_owner(self) -> Player:
+    def get_owner(self):
         return self.owner
+
+    def get_number_of_houses(self) -> int:
+        return self.number_of_houses
+
+    def get_number_of_hotels(self) -> int:
+        return self.number_of_hotels
 
     def mortgage(self) -> int:
         if not self.is_mortgaged:
@@ -71,19 +116,28 @@ class Property:
         else:
             return self.rents[0]
     
+    def can_build_house(self) -> bool:
+        return self.number_of_houses < 4 and self.has_all_in_color_set and number_of_mortgaged_properties_in_color_set[self.color] == 0
+    
     def build_house(self) -> int:
-        if self.number_of_houses < 5 and self.has_all_in_color_set and number_of_mortgaged_properties_in_color_set[self.color] == 0:
-            self.number_of_houses += 1
-            return self.house_price
-        return -1
+        self.number_of_houses += 1
+        available_houses -= 1
+        return self.house_price
     
     def upgrade_houses_to_hotel(self) -> int:
         if self.number_of_houses == 4:
             self.number_of_houses = 0
             self.number_of_hotels = 1
-            return self.house_price
+            return self.building_price
         return -1
     
+    def downgrade_hotel_to_houses(self) -> int:
+        if self.number_of_hotels == 1:
+            self.number_of_houses = 4
+            self.number_of_hotels = 0
+            return self.building_price / 2
+        return -1
+
     def display_info(self):
         print('------------')
         for _ in range(self.number_of_houses):
