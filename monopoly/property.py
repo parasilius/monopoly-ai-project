@@ -29,39 +29,39 @@ class Property:
 
     @classmethod
     def add_houses(num: int) -> int:
-        if available_houses + num > 32:
+        if Property.available_houses + num > 32:
             return -1
-        available_houses += num
-        return available_houses
+        Property.available_houses += num
+        return Property.available_houses
 
     @classmethod
     def remove_houses(num: int) -> int:
-        if available_houses - num < 0:
+        if Property.available_houses - num < 0:
             return -1
-        available_houses -= num
-        return available_houses
+        Property.available_houses -= num
+        return Property.available_houses
 
     @classmethod
     def add_hotels(num: int) -> int:
-        if available_hotels + num > 12:
+        if Property.available_hotels + num > 12:
             return -1
-        available_hotels += num
-        return available_hotels
+        Property.available_hotels += num
+        return Property.available_hotels
 
     @classmethod
     def remove_hotels(num: int) -> int:
-        if available_hotels - num < 12:
+        if Property.available_hotels - num < 12:
             return -1
-        available_hotels += num
-        return available_hotels
+        Property.available_hotels += num
+        return Property.available_hotels
     
     @classmethod
     def get_available_houses() -> int:
-        return available_houses
+        return Property.available_houses
     
     @classmethod
     def get_available_hotels() -> int:
-        return available_hotels
+        return Property.available_hotels
 
     def __init__(self, name, color, cost, rents):
         self.name = name
@@ -123,20 +123,24 @@ class Property:
     
     def build_house(self) -> int:
         self.number_of_houses += 1
-        available_houses -= 1
-        return self.house_price
+        Property.available_houses -= 1
+        return self.building_price
     
     def upgrade_houses_to_hotel(self) -> int:
-        if self.number_of_houses == 4:
+        if self.number_of_houses == 4 and Property.available_hotels > 0:
             self.number_of_houses = 0
             self.number_of_hotels = 1
+            Property.available_hotels -= 1
+            Property.available_houses += 4
             return self.building_price
         return -1
     
     def downgrade_hotel_to_houses(self) -> int:
-        if self.number_of_hotels == 1:
+        if self.number_of_hotels == 1 and Property.available_houses >= 4:
             self.number_of_houses = 4
             self.number_of_hotels = 0
+            Property.available_hotels += 1
+            Property.available_houses -= 4
             return self.building_price / 2
         return -1
 

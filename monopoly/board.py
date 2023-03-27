@@ -57,7 +57,6 @@ class Board:
         self.map = [None] * 40
         i = 0
         for idx in property_locations():
-            print(idx)
             self.map[idx] = Property(properties[i][0], properties[i][1], properties[i][2], properties[i][3:])
             i += 1
 
