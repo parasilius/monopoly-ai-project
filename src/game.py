@@ -2,9 +2,6 @@ from random import shuffle
 from player import Player
 from board import Board
 from dice import Dice
-from property import Property
-from railroad import Railroad
-from utility import Utility
 
 class Game:
     def __init__(self, player1: Player, player2: Player): # the implementation considers only 2 players

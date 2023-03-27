@@ -141,7 +141,7 @@ class Property:
             self.number_of_hotels = 0
             Property.available_hotels += 1
             Property.available_houses -= 4
-            return self.building_price / 2
+            return self.building_price / 2.0
         return -1
 
     def display(self, player):
@@ -154,3 +154,6 @@ class Property:
         for _ in range(self.number_of_hotels):
             print_with_color('🏨', player)
         print_with_color('------------', player)
+    
+    def __repr__(self) -> str:
+        return f'{self.name}'
