@@ -24,6 +24,7 @@ class Player:
         self.railroads = []
         self.utilities = []
         self.player_name = name
+        self.turns = 0
     
     def is_bankrupt(self) -> bool:
         return self.money <= 0
@@ -226,3 +227,12 @@ class Player:
         print_with_color('\t==== utilities  =====', self)
         for utility in self.utilities:
             print_with_color(utility, self)
+    
+    def turn(self, board: Board, dice: Dice):
+        self.display()
+        if self.is_in_jail():
+            self.jail_decide(dice)
+        dice.roll(self)
+        self.action(board, dice)
+        self.build_or_not()
+        self.turns += 1

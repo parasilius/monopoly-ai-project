@@ -12,18 +12,6 @@ class Game:
         self.winner = None
         self.turns = 0
     
-    def turn(self, player: Player, board: Board, dice: Dice) -> None:
-        self.players[0].display()
-        self.players[1].display()
-        if player.is_in_jail():
-            player.jail_decide(dice)
-        global available_houses
-        global available_hotels
-        dice.roll(player)
-        player.action(board, dice)
-        player.build_or_not()
-        self.turns += 1
-
     def play(self):
         shuffle(self.players)
         limit = 10000
