@@ -30,7 +30,7 @@ class Game:
                 print(f'player {self.winner.player_name} wins.')
                 print(f'total turns played: {self.turns}')
                 break
-            self.turn(player, board, dice)
+            player.turn(board, dice)
             double_counter = 0
             while dice.is_double():
                 double_counter += 1
@@ -39,8 +39,9 @@ class Game:
                     double_counter = 0
                     break
                 else:
-                    self.turn(player, board, dice)
+                    player.turn(board, dice)
             i = 1 - i
+        self.turns = self.players[0].turns + self.players[1].turns
 
 if __name__ == '__main__':
     game = Game()
