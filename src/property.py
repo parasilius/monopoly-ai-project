@@ -71,7 +71,7 @@ class Property:
         self.number_of_hotels = 0
         self.number_of_houses = 0
         self.is_mortgaged = False
-        self.mortgage_value = cost / 2
+        self.mortgage_value = cost / 2.0
         self.owner = None
         self.has_all_in_color_set = False
         self.building_price = building_costs[color]
@@ -90,22 +90,14 @@ class Property:
         return self.number_of_hotels
 
     def mortgage(self) -> int:
-        if not self.is_mortgaged:
-            self.is_mortgaged = True
-            number_of_mortgaged_properties_in_color_set[self.color] += 1
-            return self.mortgage_value
-        else:
-            print('Error: Property is already mortgaged!')
-            return -1
+        self.is_mortgaged = True
+        number_of_mortgaged_properties_in_color_set[self.color] += 1
+        return self.mortgage_value
 
     def unmortgage(self) -> int:
-        if self.is_mortgaged:
-            self.is_mortgaged = False
-            number_of_mortgaged_properties_in_color_set[self.color] -= 1
-            return self.mortgage_value + 1.1 * self.mortgage_value
-        else:
-            print('Error: Property is not mortgaged!')
-            return -1
+        self.is_mortgaged = False
+        number_of_mortgaged_properties_in_color_set[self.color] -= 1
+        return 1.1 * self.mortgage_value
     
     def get_rent(self) -> int:
         if self.has_all_in_color_set:
@@ -126,6 +118,11 @@ class Property:
         Property.available_houses -= 1
         return self.building_price
     
+    def destroy_house(self) -> int:
+        self.number_of_houses -= 1
+        Property.available_houses += 1
+        return self.building_price / 2.0
+
     def upgrade_houses_to_hotel(self) -> int:
         if self.number_of_houses == 4 and Property.available_hotels > 0:
             self.number_of_houses = 0

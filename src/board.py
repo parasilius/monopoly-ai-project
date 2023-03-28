@@ -8,7 +8,7 @@ class Board:
             # cost, site, rent w/ 1 house, rent w/ 2 houses, rent w/ 3 houses, rent w/ 4 houses, hotel
             ['Mediterranean Avenue', 'brown', 60, 2, 10, 30, 90, 160, 250], # Mediterranean Avenue (brown set)
             ['Baltic Avenue', 'brown', 60, 4, 20, 60, 180, 320, 450], # Baltic Avenue	(brown set)
-            ['Oriental AvenueBaltic Avenue', 'light blue', 100, 6, 30, 90, 270, 400, 550], # Oriental Avenue (light blue set)
+            ['Oriental Avenue', 'light blue', 100, 6, 30, 90, 270, 400, 550], # Oriental Avenue (light blue set)
             ['Vermont Avenue', 'light blue', 100, 6, 30, 90, 270, 400, 550], # Vermont Avenue (light blue set)
             ['Connecticut Avenue', 'light blue', 120, 8, 40, 100, 300, 450, 600], # Connecticut Avenue (light blue set)
             ['St. Charles Place', 'pink', 140, 10, 50, 150, 450, 625, 750], # St. Charles Place (pink set)
