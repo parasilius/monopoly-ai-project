@@ -20,11 +20,11 @@ class Game:
             other_player = self.players[1 - i]
             if player.is_bankrupt():
                 self.winner = other_player
-                print(f'{other_player.name} wins.')
+                # print(f'{other_player.name} wins.')
                 break
             if other_player.is_bankrupt():
                 self.winner = player
-                print(f'{player.name} wins.')
+                # print(f'{player.name} wins.')
                 break
             player.turn(other_player, self.board, self.dice)
             double_counter = 0
@@ -38,7 +38,7 @@ class Game:
                     player.turn(other_player, self.board, self.dice)
             i = 1 - i
         self.turns = self.players[0].turns + self.players[1].turns
-        print(f'total turns played: {self.turns}')
+        # print(f'total turns played: {self.turns}')
 
 if __name__ == '__main__':
     player1 = Player('player1')
