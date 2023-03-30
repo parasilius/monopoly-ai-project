@@ -10,29 +10,29 @@ class RandomAgent(Player):
         return -1
     
     def build_or_not(self):
-        color_sets = ['brown', 'light blue', 'pink', 'orange', 'red', 'yellow', 'green', 'dark blue']
-        available_color_sets = []
-        for color in color_sets:
-            if self.check_has_all_in_color_set(color):
-                available_color_sets.append(color)
-        for color in available_color_sets:
+        for color in self.get_buildable_color_sets():
             # print_with_color(f'speaking of {color} set...', self)
             if bool(random.getrandbits(1)):
                 for prop in self.get_buildable_properties_on_color_set(color):
                     cost = prop.build_house()
                     self.lose_money(cost)
                     self.net_worth += cost / 2.0
-            for prop in self.properties[color]:
-                if prop.get_number_of_houses() == 4 and Player.get_available_hotels() > 0:
-                    if bool(random.getrandbits(1)):
-                        cost = prop.upgrade_houses_to_hotel()
-                        self.lose_money(cost)
-                        self.net_worth += 2 * cost
-                if prop.get_number_of_hotels() == 1 and Player.get_available_houses() > 3:
-                    if bool(random.getrandbits(1)):
-                        cost = prop.downgrade_hotel_to_houses()
-                        self.lose_money(cost)
-                        self.net_worth += 8 * cost
+
+    def upgrade_houses_or_not(self):
+        for prop in self.get_buildable_properties():
+            if prop.get_number_of_houses() == 4 and Player.get_available_hotels() > 0:
+                if bool(random.getrandbits(1)):
+                    cost = prop.upgrade_houses_to_hotel()
+                    self.lose_money(cost)
+                    self.net_worth += 2 * cost
+    
+    def downgrade_hotel_or_not(self):
+        for prop in self.get_buildable_properties():
+            if prop.get_number_of_hotels() == 1 and Player.get_available_houses() > 3:
+                if bool(random.getrandbits(1)):
+                    cost = prop.downgrade_hotel_to_houses()
+                    self.lose_money(cost)
+                    self.net_worth += 8 * cost
 
     def jail_decide(self, dice: Dice):
         if bool(random.getrandbits(1)):
@@ -78,3 +78,18 @@ class RandomAgent(Player):
             if util.is_mortgaged:
                 if bool(random.getrandbits(1)):
                     self.lose_money(util.mortgage())
+    
+    def destroy_or_not(self): # sell buildings
+        color_sets = ['brown', 'light blue', 'pink', 'orange', 'red', 'yellow', 'green', 'dark blue']
+        available_color_sets = []
+        for color in color_sets:
+            if self.check_has_all_in_color_set(color):
+                available_color_sets.append(color)
+        if bool(random.getrandbits(1)):
+            for color in available_color_sets:
+                # print_with_color(f'speaking of {color} set...', self)
+                for prop in self.get_destroyable_properties_on_color_set(color):
+                        cash = prop.destroy_house()
+                        self.gain_money(cash)
+                        self.net_worth -= cash * 2
+                        # print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
