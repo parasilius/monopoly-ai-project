@@ -3,8 +3,8 @@ from utilities import *
 
 class Dice:
     def __init__(self) -> None:
-        self.first = None
-        self.second = None
+        self.die1 = None
+        self.die2 = None
         self.double_counter = 0
 
     def roll(self, player) -> None:

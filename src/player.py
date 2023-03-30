@@ -35,23 +35,23 @@ class Player:
     def lose_money(self, money: int) -> None:
         self.money -= money
         self.net_worth -= money
-        print_with_color(f'{self.name} lost {money}$ cash.', self)
+        # print_with_color(f'{self.name} lost {money}$ cash.', self)
     
     def gain_money(self, money: int) -> None:
         self.money += money
         self.net_worth += money
-        print_with_color(f'{self.name} gained {money}$ cash.', self)
+        # print_with_color(f'{self.name} gained {money}$ cash.', self)
 
     def move(self, places: int) -> int:
         previous_location = self.location
         self.location += places
         if self.location >= 40:
-            self.gain_money(200) # A player who lands on or passes the "Go" space collects $200 from the bank.
+            self.gain_money(200)
             print_with_color(f'{self.name} collected 200$ by passing GO!', self)
             self.location %= 40
         print_with_color(f'{self.name} moved from {previous_location} to {self.location}.', self)
         return self.location
-
+    
     def go_to_jail(self) -> None:
         self.location = 10
         self.in_jail_counter += 1
@@ -128,8 +128,6 @@ class Player:
                     yield self.properties[color][0]
                 if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
-                if self.properties[color][2].can_build_house():
-                    yield self.properties[color][2]
             elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
                 if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
@@ -201,7 +199,7 @@ class Player:
             if self.check_has_all_in_color_set(color):
                 available_color_sets.append(color)
         for color in available_color_sets:
-            print_with_color(f'speaking of {color} set...', self)
+            # print_with_color(f'speaking of {color} set...', self)
             for prop in self.get_buildable_properties_on_color_set(color):
                 build_house_on_property = input(f'Build house on property {prop}? [y/N] ')
                 if build_house_on_property == 'y':
@@ -260,11 +258,12 @@ class Player:
                     self.gain_money(util.mortgage())
     
     def unmortgage_or_not(self):
-        for prop in self.properties.values():
-            if prop.is_mortgaged:
-                to_mortgage = input(f'Unmortgage {prop}? [y/N] ')
-                if to_mortgage == 'y':
-                    self.lose_money(prop.mortgage())
+        for props in self.properties.values():
+            for prop in props:
+                if prop.is_mortgaged:
+                    to_mortgage = input(f'Unmortgage {prop}? [y/N] ')
+                    if to_mortgage == 'y':
+                        self.lose_money(prop.mortgage())
         for railroad in self.railroads:
             if railroad.is_mortgaged:
                 to_mortgage = input(f'Unmortgage {railroad}? [y/N] ')
@@ -288,7 +287,6 @@ class Player:
         if location == 30:
             self.go_to_jail()
         elif isinstance(item, Property):
-            print(item.get_owner())
             if item.get_owner() is None:
                 cost = self.buy_or_not(item)
                 if cost != -1:
@@ -337,13 +335,16 @@ class Player:
         # self.display()
         self.turns += 1
         if self.is_in_jail():
-            if not self.jail_decide(dice):
+            self.jail_decide(dice)
+        if not self.is_in_jail():
+            dice.roll(self)
+            self.action(board, dice)
+        match (self.turns - 1) % 4:
+            case 0:
                 self.build_or_not()
+            case 1:
                 self.destroy_or_not()
+            case 2:
                 self.mortgage_or_not()
-                return
-        dice.roll(self)
-        self.action(board, dice)
-        self.build_or_not()
-        self.destroy_or_not()
-        self.mortgage_or_not()
+            case 3:
+                self.unmortgage_or_not()
