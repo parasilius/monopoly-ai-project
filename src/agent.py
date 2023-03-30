@@ -161,10 +161,6 @@ class Agent(Player):
             bestScore = float('-inf')
             for stay_in_jail in [True, False]:
                 return max(bestScore, self.get_heuristic(other_player, isMaximizing, depth - 1, board, dice, stay_in_jail))
-        else:
-            bestScore = float('+inf')
-            for stay_in_jail in [True, False]:
-                return min(bestScore, self.get_heuristic(other_player, 'final', depth - 1, board, dice, stay_in_jail))
         return bestScore
     
     def turn(self, other_player: Player, board: Board, dice: Dice):
