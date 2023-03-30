@@ -15,22 +15,25 @@ class RandomAgent(Player):
         for color in color_sets:
             if self.check_has_all_in_color_set(color):
                 available_color_sets.append(color)
-        if len(available_color_sets) == 0:
-            print_with_color('You can\'t build any houses!', self)
-        else:
-            for color in available_color_sets:
-                if len(self.properties[color]) == 3:
-                    for prop in self.get_buildable_properties_on_color_set(color):
-                        if bool(random.getrandbits(1)):
-                            self.lose_money(prop.build_house())
-                for prop in self.properties[color]:
-                    if prop.get_number_of_houses() == 4 and prop.get_available_hotels() > 0:
-                        if bool(random.getrandbits(1)):
-                            self.lose_money(prop.upgrade_houses_to_hotel())
-                    if prop.get_number_of_hotels() == 1 and prop.get_available_houses() > 3:
-                        if bool(random.getrandbits(1)):
-                            self.lose_money(prop.downgrade_houses_to_hotel())
-    
+        for color in available_color_sets:
+            # print_with_color(f'speaking of {color} set...', self)
+            if bool(random.getrandbits(1)):
+                for prop in self.get_buildable_properties_on_color_set(color):
+                    cost = prop.build_house()
+                    self.lose_money(cost)
+                    self.net_worth += cost / 2.0
+            for prop in self.properties[color]:
+                if prop.get_number_of_houses() == 4 and Player.get_available_hotels() > 0:
+                    if bool(random.getrandbits(1)):
+                        cost = prop.upgrade_houses_to_hotel()
+                        self.lose_money(cost)
+                        self.net_worth += 2 * cost
+                if prop.get_number_of_hotels() == 1 and Player.get_available_houses() > 3:
+                    if bool(random.getrandbits(1)):
+                        cost = prop.downgrade_hotel_to_houses()
+                        self.lose_money(cost)
+                        self.net_worth += 8 * cost
+
     def jail_decide(self, dice: Dice):
         if bool(random.getrandbits(1)):
             self.lose_money(50)
@@ -43,4 +46,35 @@ class RandomAgent(Player):
                 self.lose_money(50)
                 self.get_out_of_jail()
             else:
-                return
+                return False
+        return True
+
+    def mortgage_or_not(self):
+        for props in self.properties.values():
+            for prop in props:
+                if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
+                    if bool(random.getrandbits(1)):
+                        self.gain_money(prop.mortgage())
+        for railroad in self.railroads:
+            if not railroad.is_mortgaged:
+                if bool(random.getrandbits(1)):
+                    self.gain_money(railroad.mortgage())
+        for util in self.utilities:
+            if not util.is_mortgaged:
+                if bool(random.getrandbits(1)):
+                    self.gain_money(util.mortgage())
+
+    def unmortgage_or_not(self):
+        for props in self.properties.values():
+            for prop in props:
+                if prop.is_mortgaged:
+                    if bool(random.getrandbits(1)):
+                        self.lose_money(prop.mortgage())
+        for railroad in self.railroads:
+            if railroad.is_mortgaged:
+                if bool(random.getrandbits(1)):
+                    self.lose_money(railroad.mortgage())
+        for util in self.utilities:
+            if util.is_mortgaged:
+                if bool(random.getrandbits(1)):
+                    self.lose_money(util.mortgage())
