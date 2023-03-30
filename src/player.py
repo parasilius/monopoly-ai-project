@@ -35,12 +35,12 @@ class Player:
     def lose_money(self, money: int) -> None:
         self.money -= money
         self.net_worth -= money
-        # print_with_color(f'{self.name} lost {money}$ cash.', self)
+        print_with_color(f'{self.name} lost {money}$ cash.', self)
     
     def gain_money(self, money: int) -> None:
         self.money += money
         self.net_worth += money
-        # print_with_color(f'{self.name} gained {money}$ cash.', self)
+        print_with_color(f'{self.name} gained {money}$ cash.', self)
 
     def move(self, places: int) -> int:
         previous_location = self.location
@@ -110,6 +110,7 @@ class Player:
             other_player.gain_money(rent)
             print_with_color(f'{self.name} paid {rent}$ rent to {other_player.name} for landing on {item}.', self)
         else:
+            # pass 
             print_with_color(f'{self.name} paid {rent}$ rent to bank.', self)
     
     def buy_or_not(self, item) -> int:
@@ -119,41 +120,78 @@ class Player:
         return -1
     
     def get_buildable_properties_on_color_set(self, color: str):
-        if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
-            if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
-                yield self.properties[color][0]
-            if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
-                yield self.properties[color][1]
-            if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
-                yield self.properties[color][2]
-        elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
-            if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
-                yield self.properties[color][1]
-            if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
-                yield self.properties[color][2]
-        elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
-            if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
-                yield self.properties[color][0]
-            if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
-                yield self.properties[color][2]
-        elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
-            if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
-                yield self.properties[color][0]
-            if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
-                yield self.properties[color][1]
+        if Property.available_houses <= 0:
+            return
+        if color == 'brown' or color == 'dark blue':
+            if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
+                if self.properties[color][0].can_build_house():
+                    yield self.properties[color][0]
+                if self.properties[color][1].can_build_house():
+                    yield self.properties[color][1]
+                if self.properties[color][2].can_build_house():
+                    yield self.properties[color][2]
+            elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
+                if self.properties[color][1].can_build_house():
+                    yield self.properties[color][1]
+                if self.properties[color][2].can_build_house():
+                    yield self.properties[color][2]
+            elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
+                if self.properties[color][0].can_build_house():
+                    yield self.properties[color][0]
+                if self.properties[color][2].can_build_house():
+                    yield self.properties[color][2]
+            elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
+                if self.properties[color][0].can_build_house():
+                    yield self.properties[color][0]
+                if self.properties[color][1].can_build_house():
+                    yield self.properties[color][1]
+        else:
+            if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
+                if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
+                    yield self.properties[color][0]
+                if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
+                    yield self.properties[color][1]
+                if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
+                    yield self.properties[color][2]
+            elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
+                if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
+                    yield self.properties[color][1]
+                if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
+                    yield self.properties[color][2]
+            elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
+                if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
+                    yield self.properties[color][0]
+                if self.money >= self.properties[color][2].building_price and self.properties[color][2].available_houses > 0 and self.properties[color][2].can_build_house():
+                    yield self.properties[color][2]
+            elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
+                if self.money >= self.properties[color][0].building_price and self.properties[color][0].available_houses > 0 and self.properties[color][0].can_build_house():
+                    yield self.properties[color][0]
+                if self.money >= self.properties[color][1].building_price and self.properties[color][1].available_houses > 0 and self.properties[color][1].can_build_house():
+                    yield self.properties[color][1]
     
     def get_destroyable_properties_on_color_set(self, color: str):
-        if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses == 0:
-            return
-        if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
+        if color == 'brown' or color == 'dark blue':
+            if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == 0:
+                return
+            if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
+                yield self.properties[color][0]
+                yield self.properties[color][1]
+            elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses:
+                yield self.properties[color][0]
+            elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses:
+                yield self.properties[color][1]
+        else:
+            if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses == 0:
+                return
+            if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
                 yield self.properties[color][0]
                 yield self.properties[color][1]
                 yield self.properties[color][2]
-        elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
+            elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
                 yield self.properties[color][0]
-        elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
+            elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
                 yield self.properties[color][1]
-        elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
+            elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
                 yield self.properties[color][2]
     
     def build_or_not(self):
@@ -163,9 +201,9 @@ class Player:
             if self.check_has_all_in_color_set(color):
                 available_color_sets.append(color)
         for color in available_color_sets:
-            # print_with_color(f'speaking of {color} set...', self)
+            print_with_color(f'speaking of {color} set...', self)
             for prop in self.get_buildable_properties_on_color_set(color):
-                build_house_on_property = input(f'Build house on property {prop}?[y/N] ')
+                build_house_on_property = input(f'Build house on property {prop}? [y/N] ')
                 if build_house_on_property == 'y':
                     cost = prop.build_house()
                     self.lose_money(cost)
@@ -173,14 +211,14 @@ class Player:
                     print_with_color(f'{self.name} paid {cost}$ for {prop}.', self)
             for prop in self.properties[color]:
                 if prop.get_number_of_houses() == 4 and Property.get_available_hotels() > 0:
-                    upgrade_to_hotel = input(f'Upgrade houses in {prop} to a hotel?[y/N] ')
+                    upgrade_to_hotel = input(f'Upgrade houses in {prop} to a hotel? [y/N] ')
                     if upgrade_to_hotel == 'y':
                         cost = prop.upgrade_houses_to_hotel()
                         self.lose_money(cost)
                         self.net_worth += 2 * cost
                         print_with_color(f'{self.name} upgraded houses on {prop} to a hotel for {cost}$.', self)
                 if prop.get_number_of_hotels() == 1 and Property.get_available_houses() > 3:
-                    downgrade_to_hotel = input(f'Downgrade hotel in {prop} to 4 houses?[y/N] ')
+                    downgrade_to_hotel = input(f'Downgrade hotel in {prop} to 4 houses? [y/N] ')
                     if downgrade_to_hotel == 'y':
                         cost = prop.downgrade_hotel_to_houses()
                         self.lose_money(cost)
@@ -194,7 +232,7 @@ class Player:
             if self.check_has_all_in_color_set(color):
                 available_color_sets.append(color)
         for color in available_color_sets:
-            # print_with_color(f'speaking of {color} set...', self)
+            print_with_color(f'speaking of {color} set...', self)
             for prop in self.get_destroyable_properties_on_color_set(color):
                 destroy_house_on_property = input(f'Destroy house on {prop}?[y/N] ')
                 if destroy_house_on_property == 'y':
@@ -250,9 +288,11 @@ class Player:
         if location == 30:
             self.go_to_jail()
         elif isinstance(item, Property):
+            print(item.get_owner())
             if item.get_owner() is None:
                 cost = self.buy_or_not(item)
                 if cost != -1:
+                    # pass
                     print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner() != self and not item.is_mortgaged:
                 self.pay_rent(item.get_rent(), item.get_owner(), item)
@@ -260,6 +300,7 @@ class Player:
             if item.get_owner() is None:
                 cost = self.buy_or_not(item)
                 if cost != -1:
+                    # pass
                     print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner() != self and not item.is_mortgaged:
                 self.pay_rent(2 ** (item.get_owner().get_number_of_railroads() - 1) * 25, item.get_owner(), item)
@@ -267,6 +308,7 @@ class Player:
             if item.get_owner() is None:
                 cost = self.buy_or_not(item)
                 if cost != -1:
+                    # pass
                     print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner() != self and not item.is_mortgaged:
                 if item.get_owner().get_number_of_utilities() == 1:

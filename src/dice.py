@@ -10,7 +10,7 @@ class Dice:
     def roll(self, player) -> None:
         self.die1 = randint(1, 6)
         self.die2 = randint(1, 6)
-        print_with_color(f'die 1: {self.die1}, die 2: {self.die2}', player)
+        # print_with_color(f'die 1: {self.die1}, die 2: {self.die2}', player)
     
     def get_places(self) -> int:
         return self.die1 + self.die2

@@ -1,6 +1,7 @@
 # from player import Player
+from square import Square
 
-class Utility:
+class Utility(Square):
     def __init__(self, name: str):
         self.name = name
         self.cost = 150

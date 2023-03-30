@@ -1,5 +1,6 @@
 # from player import Player
 from utilities import *
+from square import Square
 
 building_costs = {
     'brown': 50,
@@ -23,7 +24,7 @@ number_of_mortgaged_properties_in_color_set = {
     'dark blue': 0
 }
 
-class Property:
+class Property(Square):
     available_houses = 32
     available_hotels = 12
 
