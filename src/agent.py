@@ -88,24 +88,24 @@ class Agent(Player):
             if item.get_owner() is None:
                 cost = self.buy_or_not(item, buy)
                 if cost != -1:
-                    # pass
-                    print_with_color(f'{self.name} bought {item} for {cost}$.', self)
+                    pass
+                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner().name != self.name and not item.is_mortgaged:
                 self.pay_rent(item.get_rent(), item.get_owner(), item)
         elif isinstance(item, Railroad):
             if item.get_owner() is None:
                 cost = self.buy_or_not(item, buy)
                 if cost != -1:
-                    # pass
-                    print_with_color(f'{self.name} bought {item} for {cost}$.', self)
+                    pass
+                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner().name != self.name:
                 self.pay_rent(2 ** (item.get_owner().get_number_of_railroads() - 1) * 25, item.get_owner(), item)
         elif isinstance(item, Utility):
             if item.get_owner() is None:
                 cost = self.buy_or_not(item, buy)
                 if cost != -1:
-                    # pass
-                    print_with_color(f'{self.name} bought {item} for {cost}$.', self)
+                    pass
+                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner().name != self.name:
                 if item.get_owner().get_number_of_utilities() == 1:
                     self.pay_rent(dice.get_places() * 4, item.get_owner(), item)
@@ -151,7 +151,7 @@ class Agent(Player):
     def get_heuristic(self, other_player: Player, isMaximizing: bool, depth: int, board: Board, dice: Dice, stay_in_jail: bool) -> int:
         if depth == 0:
             return self.evaluate_state(other_player, board, stay_in_jail)
-        elif depth == 3:
+        elif depth == 2:
             bestScore = 0
             for i in range(1, 7):
                 for j in range(1, 7):
@@ -192,3 +192,18 @@ class Agent(Player):
                 self.mortgage_or_not()
             case 3:
                 self.unmortgage_or_not()
+
+    def destroy_or_not(self): # sell buildings
+        color_sets = ['brown', 'light blue', 'pink', 'orange', 'red', 'yellow', 'green', 'dark blue']
+        available_color_sets = []
+        for color in color_sets:
+            if self.check_has_all_in_color_set(color):
+                available_color_sets.append(color)
+        if bool(random.getrandbits(1)):
+            for color in available_color_sets:
+                # print_with_color(f'speaking of {color} set...', self)
+                for prop in self.get_destroyable_properties_on_color_set(color):
+                        cash = prop.destroy_house()
+                        self.gain_money(cash)
+                        self.net_worth -= cash * 2
+                        # print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
