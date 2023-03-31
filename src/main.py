@@ -1,6 +1,8 @@
 import game
 import random_agent
+import first_agent
 import player
+from tqdm import tqdm
 
 def play_test_game(player1: player.Player, player2: player.Player):
     test_game = game.Game(player1, player2)
@@ -9,7 +11,8 @@ def play_test_game(player1: player.Player, player2: player.Player):
 def evaluate(games_num, player1_class, player2_class):
     player1_wins = 0
     player2_wins = 0
-    for _ in range(games_num):
+    total_turns = 0.0
+    for _ in tqdm(range(games_num)):
         player1 = player1_class('player1')
         player2 = player2_class('player2')
         test_game = game.Game(player1, player2)
@@ -18,16 +21,28 @@ def evaluate(games_num, player1_class, player2_class):
             player1_wins += 1
         elif test_game.winner == player2:
             player2_wins += 1
-    print(f'{player1.player_name} wins {player1_wins} times.')
-    print(f'{player2.player_name} wins {player2_wins} times.')
-    print(f'{player1.player_name} wins {player1_wins * 100.0 / games_num}% of the time.')
-    print(f'{player2.player_name} wins {player2_wins * 100.0 / games_num}% of the time.')
+        total_turns += test_game.turns
+    print(f'{player1.name} wins {player1_wins} times.')
+    print(f'{player2.name} wins {player2_wins} times.')
+    print(f'{player1.name} wins {player1_wins * 100.0 / games_num}% of the time.')
+    print(f'{player2.name} wins {player2_wins * 100.0 / games_num}% of the time.')
     print(f'total number of games played: {games_num}')
-        
+    print(f'average number of turns: {total_turns / games_num}')
 
 if __name__ == '__main__':
     # player_bot = random_agent.RandomAgent('player_bot')
     # player_human = player.Player('player_human')
     # player_human = random_agent.RandomAgent('player_human')
     # play_test_game(player_bot, player_human)
-    evaluate(10, random_agent.RandomAgent, random_agent.RandomAgent)
+    # ================== AGENT EVALUATION ===============================
+    # =========== random agent vs random agent ==========================
+    # evaluate(10, random_agent.RandomAgent, random_agent.RandomAgent)
+    # evaluate(100, random_agent.RandomAgent, random_agent.RandomAgent)
+    # evaluate(1000, random_agent.RandomAgent, random_agent.RandomAgent)
+    # evaluate(10000, random_agent.RandomAgent, random_agent.RandomAgent)
+    # evaluate(100000, random_agent.RandomAgent, random_agent.RandomAgent)
+    # =========== random agent vs first agent ============================
+    # evaluate(10, random_agent.RandomAgent, first_agent.Agent)
+    evaluate(100, random_agent.RandomAgent, first_agent.Agent)
+    # evaluate(1000, random_agent.RandomAgent, first_agent.Agent)
+    # evaluate(10000, random_agent.RandomAgent, first_agent.Agent)
