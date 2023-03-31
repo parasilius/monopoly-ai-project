@@ -9,6 +9,9 @@ class Railroad(Square):
         self.mortgage_value = self.cost / 2.0
         self.is_mortgaged = False
     
+    def get_rent(self):
+        return 2 ** (self.owner.get_number_of_railroads() - 1) * 25
+    
     def set_owner(self, owner) -> None:
         self.owner = owner
     

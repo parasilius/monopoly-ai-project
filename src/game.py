@@ -2,6 +2,8 @@ from random import shuffle
 from player import Player
 from board import Board
 from dice import Dice
+from first_agent import Agent
+from utilities import clear
 
 class Game:
     def __init__(self, player1: Player, player2: Player): # the implementation considers only 2 players
@@ -16,6 +18,7 @@ class Game:
         limit = 10000
         i = 0
         for _ in range(limit):
+            # clear()
             player = self.players[i]
             other_player = self.players[1 - i]
             if player.is_bankrupt():
@@ -42,6 +45,6 @@ class Game:
 
 if __name__ == '__main__':
     player1 = Player('player1')
-    player2 = Player('player2')
+    player2 = Agent('player2')
     game = Game(player1, player2)
     game.play()

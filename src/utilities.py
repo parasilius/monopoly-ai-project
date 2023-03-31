@@ -1,5 +1,6 @@
 from colorama import Fore
 from colorama import Style
+import os
 
 def print_with_color(text: str, player) -> None:
     if player.name == 'player1': # this is not a good check!
@@ -150,3 +151,6 @@ lprobabilities = [
     0.024832,
     0.094569 # in jail
 ]
+
+def clear():
+    os.system('cls') if os.name == "nt" else os.system('clear')

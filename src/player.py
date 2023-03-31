@@ -27,7 +27,7 @@ class Player:
         self.turns = 0
     
     def is_bankrupt(self) -> bool:
-        return self.money <= 0
+        return self.net_worth <= 0
     
     def get_money(self) -> int:
         return self.money
@@ -300,17 +300,17 @@ class Player:
                 if prop.is_mortgaged:
                     to_mortgage = input(f'Unmortgage {prop}? [y/N] ')
                     if to_mortgage == 'y':
-                        self.lose_money(prop.mortgage())
+                        self.lose_money(prop.unmortgage())
         for railroad in self.railroads:
             if railroad.is_mortgaged:
                 to_mortgage = input(f'Unmortgage {railroad}? [y/N] ')
                 if to_mortgage == 'y':
-                    self.lose_money(railroad.mortgage())
+                    self.lose_money(railroad.unmortgage())
         for util in self.utilities:
             if util.is_mortgaged:
                 to_mortgage = input(f'Unmortgage {util}? [y/N] ')
                 if to_mortgage == 'y':
-                    self.lose_money(util.mortgage())
+                    self.lose_money(util.unmortgage())
 
     def get_number_of_railroads(self) -> int:
         return len(self.railroads)
@@ -323,33 +323,17 @@ class Player:
         item = board.get_item_at_location(location)
         if location == 30:
             self.go_to_jail()
-        elif isinstance(item, Property):
+        elif isinstance(item, Property) or isinstance(item, Railroad) or isinstance(item, Utility):
             if item.get_owner() is None:
                 cost = self.buy_or_not(item)
                 if cost != -1:
                     pass
                     # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
             elif item.get_owner() != self and not item.is_mortgaged:
-                self.pay_rent(item.get_rent(), item.get_owner(), item)
-        elif isinstance(item, Railroad):
-            if item.get_owner() is None:
-                cost = self.buy_or_not(item)
-                if cost != -1:
-                    pass
-                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
-            elif item.get_owner() != self and not item.is_mortgaged:
-                self.pay_rent(2 ** (item.get_owner().get_number_of_railroads() - 1) * 25, item.get_owner(), item)
-        elif isinstance(item, Utility):
-            if item.get_owner() is None:
-                cost = self.buy_or_not(item)
-                if cost != -1:
-                    pass
-                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
-            elif item.get_owner() != self and not item.is_mortgaged:
-                if item.get_owner().get_number_of_utilities() == 1:
-                    self.pay_rent(dice.get_places() * 4, item.get_owner(), item)
-                else: # owner's number of utilities is 2
-                    self.pay_rent(dice.get_places() * 10, item.get_owner(), item)
+                if isinstance(item, Utility):
+                    self.pay_rent(item.get_rent(dice), item.get_owner(), item)
+                else:
+                    self.pay_rent(item.get_rent(), item.get_owner(), item)
         elif isinstance(item, int):
             self.pay_rent(item)
 
