@@ -229,9 +229,30 @@ class Player:
                     self.net_worth += 2 * cost
                     # print_with_color(f'{self.name} upgraded houses on {prop} to a hotel for {cost}$.', self)
 
+    def get_downgradable_properties(self):
+        for color in self.get_buildable_color_sets():
+            if color == 'brown' or color == 'dark blue':
+                if self.properties[color][0].number_of_hotels > 0 and self.properties[color][1].number_of_houses > 2:
+                    yield self.properties[color][0]
+                elif self.properties[color][1].number_of_hotels > 0 and self.properties[color][0].number_of_houses > 2:
+                    yield self.properties[color][1]
+                elif self.properties[color][0].number_of_hotels > 0 and self.properties[color][1].number_of_hotels > 0:
+                    yield self.properties[color][0]
+                    yield self.properties[color][1]
+            else:
+                if self.properties[color][0].number_of_hotels > 0:
+                    if (self.properties[color][1].number_of_houses > 2 or self.properties[color][1].number_of_hotels > 0) and (self.properties[color][2].number_of_houses > 2 or self.properties[color][2].number_of_hotels > 0):
+                        yield self.properties[color][0]
+                if self.properties[color][1].number_of_hotels > 0:
+                    if (self.properties[color][0].number_of_houses > 2 or self.properties[color][2].number_of_hotels > 0) and (self.properties[color][0].number_of_houses > 2 or self.properties[color][2].number_of_hotels > 0):
+                        yield self.properties[color][1]
+                if self.properties[color][2].number_of_hotels > 0:
+                    if (self.properties[color][0].number_of_houses > 2 or self.properties[color][1].number_of_hotels > 0) and (self.properties[color][0].number_of_houses > 2 or self.properties[color][1].number_of_hotels > 0):
+                        yield self.properties[color][2]
+
     def downgrade_hotel_or_not(self):
-        for prop in self.get_buildable_properties():
-            if prop.get_number_of_hotels() == 1 and Property.get_available_houses() > 3:
+        for prop in self.get_downgradable_properties():
+            if Property.get_available_houses() > 3:
                 downgrade_to_hotel = input(f'Downgrade hotel in {prop} to 4 houses? [y/N] ')
                 if downgrade_to_hotel == 'y':
                     cost = prop.downgrade_hotel_to_houses()
