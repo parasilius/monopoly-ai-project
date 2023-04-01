@@ -9,11 +9,11 @@ class Utility(Square):
         self.mortgage_value = self.cost / 2.0
         self.is_mortgaged = False
     
-    def get_rent(self, dice):
+    def get_rent(self, dice_places: int) -> int:
         if self.owner.get_number_of_utilities() == 1:
-            return dice.get_places() * 4
+            return dice_places * 4
         else:
-            return dice.get_places() * 10
+            return dice_places * 10
     
     def set_owner(self, owner) -> None:
         self.owner = owner

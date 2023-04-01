@@ -5,5 +5,6 @@ class Square:
     '''
     def __init__(self, cost: int, lprobability: float, sprobability: float):
         self.cost = cost
+        self.owner = None
         self.lprobability = lprobability
         self.sprobability = sprobability
