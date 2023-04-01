@@ -9,42 +9,7 @@ import random
 from utilities import *
 import copy
 
-class Agent(RandomAgent):
-    def action(self, board: Board, dice: Dice):
-        location = self.move(dice.get_places())
-        item = board.get_item_at_location(location)
-        if location == 30:
-            self.go_to_jail()
-        elif isinstance(item, Property):
-            if item.get_owner() is None:
-                cost = self.buy_or_not(item)
-                if cost != -1:
-                    pass
-                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
-            elif item.get_owner().name != self.name and not item.is_mortgaged:
-                self.pay_rent(item.get_rent(), item.get_owner(), item)
-        elif isinstance(item, Railroad):
-            if item.get_owner() is None:
-                cost = self.buy_or_not(item)
-                if cost != -1:
-                    pass
-                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
-            elif item.get_owner().name != self.name:
-                self.pay_rent(2 ** (item.get_owner().get_number_of_railroads() - 1) * 25, item.get_owner(), item)
-        elif isinstance(item, Utility):
-            if item.get_owner() is None:
-                cost = self.buy_or_not(item)
-                if cost != -1:
-                    pass
-                    # print_with_color(f'{self.name} bought {item} for {cost}$.', self)
-            elif item.get_owner().name != self.name:
-                if item.get_owner().get_number_of_utilities() == 1:
-                    self.pay_rent(dice.get_places() * 4, item.get_owner(), item)
-                else: # owner's number of utilities is 2
-                    self.pay_rent(dice.get_places() * 10, item.get_owner(), item)
-        elif isinstance(item, int):
-            self.pay_rent(item)
-    
+class FirstAgent(RandomAgent):    
     def jail_decide(self, dice: Dice, stay_in_jail: bool):
         if not stay_in_jail:
             self.lose_money(50)
@@ -60,39 +25,40 @@ class Agent(RandomAgent):
                 return False
         return True
     
-    def evaluate_jail_stay(self, other_player: Player, board: Board, dice: Dice, stay_in_jail: bool) -> float:
+    def evaluate_jail_stay(self, other_player: Player, board: Board, stay_in_jail: bool) -> float:
         if self.is_bankrupt():
             return float('-inf')
-        if other_player.is_bankrupt():
-            return float('+inf')
         if stay_in_jail:
             return 0
         elif board.map[self.location] != None and not isinstance(board.map[self.location], int):
             if board.map[self.location].owner != None and board.map[self.location].owner.name == other_player.name and not board.map[self.location].is_mortgaged:
                 if isinstance(board.map[self.location], Utility):
-                    return -1 * board.map[self.location].get_rent(dice)
+                    self.pay_rent(board.map[self.location].get_rent(2)) # no need for other arguments
                 else:
-                    return -1 * board.map[self.location].get_rent()
+                    self.pay_rent(board.map[self.location].get_rent()) # no need for other arguments
+                if self.is_bankrupt():
+                    return float('-inf')
+                return -1
             elif board.map[self.location].owner == None:
                 self.buy(board.map[self.location]) # buying is better than not buying in the first turns
+                if self.is_bankrupt():
+                    return float('-inf')
                 if isinstance(board.map[self.location], Utility):
-                    return board.map[self.location].lprobability * 28 # 28 isn't a good choice, but sufficient
-                else:
-                    return board.map[self.location].lprobability * board.map[self.location].get_rent() # doesn't change net worth
+                    return 0
+                return 1
         return 0
 
-    def get_jail_heuristic(self, other_player: Player, depth: int, board: Board, dice: Dice, stay_in_jail: bool) -> float:
+    def get_jail_heuristic(self, other_player: Player, depth: int, board: Board, stay_in_jail: bool) -> float:
         if stay_in_jail or depth == 0 or self.is_bankrupt() or other_player.is_bankrupt():
-            return self.evaluate_jail_stay(other_player, board, dice, stay_in_jail)
+            return self.evaluate_jail_stay(other_player, board, stay_in_jail)
         else:
             bestScore = 0
-            player_copy = copy.deepcopy(self)
             for i in range(1, 7):
                 for j in range(1, 7):
                     player_copy = copy.deepcopy(self)
                     player_copy.lose_money(50)
                     player_copy.location += i + j
-                    bestScore += (1 / 36.0) * player_copy.get_jail_heuristic(other_player, depth - 1, board, dice, False)
+                    bestScore += (1 / 36.0) * player_copy.get_jail_heuristic(other_player, depth - 1, board, False)
                     player_copy.location -= i + j
             return bestScore
     
@@ -104,7 +70,7 @@ class Agent(RandomAgent):
         # player_copy = copy.deepcopy(self)
         if self.is_in_jail():
             for stay_in_jail in [True, False]:
-                score = self.get_jail_heuristic(other_player, 1, board, dice, stay_in_jail)
+                score = self.get_jail_heuristic(other_player, 1, board, stay_in_jail)
                 if score >= bestScore:
                     bestScore = score
                     best_stay_in_jail = stay_in_jail
@@ -125,3 +91,13 @@ class Agent(RandomAgent):
                 self.mortgage_or_not()
             case 5:
                 self.unmortgage_or_not()
+
+if __name__ == '__main__':
+    board = Board()
+    player1 = FirstAgent('player1')
+    player2 = FirstAgent('player2')
+    board.map[13].owner = player2
+    board.map[19].owner = player2
+    board.map[16].owner = player1
+    player2.location = 10
+    score = player2.get_jail_heuristic(player1, 1, board, False)

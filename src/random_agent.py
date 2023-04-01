@@ -11,7 +11,7 @@ class RandomAgent(Player):
     
     def build_or_not(self):
         for color in self.get_buildable_color_sets():
-            # print_with_color(f'speaking of {color} set...', self)
+            print_with_color(f'speaking of {color} set...', self)
             if bool(random.getrandbits(1)):
                 for prop in self.get_buildable_properties_on_color_set(color):
                     cost = prop.build_house()
@@ -82,9 +82,32 @@ class RandomAgent(Player):
     def destroy_or_not(self): # sell buildings
         for color in self.get_buildable_color_sets():
             if bool(random.getrandbits(1)):
-                # print_with_color(f'speaking of {color} set...', self)
+                print_with_color(f'speaking of {color} set...', self)
                 for prop in self.get_destroyable_properties_on_color_set(color):
                     cash = prop.destroy_house()
                     self.gain_money(cash)
                     self.net_worth -= cash * 2
-                    # print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
+                    print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
+
+    def turn(self, board, dice: Dice):
+        # self.display()
+        self.turns += 1
+        if self.is_in_jail():
+            self.jail_decide(dice)
+        if not self.is_in_jail():
+            dice.roll(self)
+            self.action(board, dice)
+        num = random.randint(1, 6)
+        match num:
+            case 1:
+                self.build_or_not()
+            case 2:
+                self.destroy_or_not()
+            case 3:
+                self.upgrade_houses_or_not()
+            case 4:
+                self.downgrade_hotel_or_not()
+            case 5:
+                self.mortgage_or_not()
+            case 6:
+                self.unmortgage_or_not()

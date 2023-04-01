@@ -1,6 +1,7 @@
 import game
-import random_agent
-import first_agent
+from random_agent import RandomAgent
+from first_agent import FirstAgent
+from second_agent import SecondAgent
 import player
 from tqdm import tqdm
 
@@ -36,13 +37,18 @@ if __name__ == '__main__':
     # play_test_game(player_bot, player_human)
     # ================== AGENT EVALUATION ===============================
     # =========== random agent vs random agent ==========================
-    # evaluate(10, random_agent.RandomAgent, random_agent.RandomAgent)
-    # evaluate(100, random_agent.RandomAgent, random_agent.RandomAgent)
-    # evaluate(1000, random_agent.RandomAgent, random_agent.RandomAgent)
-    # evaluate(10000, random_agent.RandomAgent, random_agent.RandomAgent)
-    # evaluate(100000, random_agent.RandomAgent, random_agent.RandomAgent)
+    # evaluate(10, RandomAgent, RandomAgent)
+    evaluate(100, RandomAgent, RandomAgent)
+    # evaluate(1000, RandomAgent, RandomAgent)
+    # evaluate(10000, RandomAgent, RandomAgent)
+    # evaluate(100000, RandomAgent, RandomAgent)
     # =========== random agent vs first agent ============================
-    # evaluate(10, random_agent.RandomAgent, first_agent.Agent)
-    evaluate(100, random_agent.RandomAgent, first_agent.Agent)
-    # evaluate(1000, random_agent.RandomAgent, first_agent.Agent)
-    # evaluate(10000, random_agent.RandomAgent, first_agent.Agent)
+    # evaluate(10, RandomAgent, FirstAgent)
+    # evaluate(100, RandomAgent, FirstAgent)
+    # evaluate(1000, RandomAgent, FirstAgent)
+    # evaluate(10000, RandomAgent, FirstAgent)
+    # =========== first agent vs second agent ============================
+    # evaluate(10, FirstAgent, SecondAgent)
+    # evaluate(100, FirstAgent, FirstAgent)
+    # evaluate(1000, FirstAgent, FirstAgent)
+    # evaluate(10000, FirstAgent, SecondAgent)
