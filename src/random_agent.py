@@ -12,7 +12,6 @@ class RandomAgent(Player):
     
     def build_or_not(self):
         for color in self.get_buildable_color_sets():
-            print_with_color(f'speaking of {color} set...', self)
             if bool(random.getrandbits(1)):
                 for prop in self.get_buildable_properties_on_color_set(color):
                     cost = prop.build_house()
