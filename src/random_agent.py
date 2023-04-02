@@ -1,4 +1,5 @@
 from player import Player
+from property import Property
 from dice import Dice
 import random
 from utilities import *
@@ -28,7 +29,7 @@ class RandomAgent(Player):
  
     def downgrade_hotel_or_not(self):
         for prop in self.get_downgradable_properties():
-            if Player.get_available_houses() > 3:
+            if Property.get_available_houses() > 3:
                 if bool(random.getrandbits(1)):
                     cost = prop.downgrade_hotel_to_houses()
                     self.lose_money(cost)
@@ -69,21 +70,20 @@ class RandomAgent(Player):
             for prop in props:
                 if prop.is_mortgaged:
                     if bool(random.getrandbits(1)):
-                        self.lose_money(prop.mortgage())
+                        self.lose_money(prop.unmortgage())
         for railroad in self.railroads:
             if railroad.is_mortgaged:
                 if bool(random.getrandbits(1)):
-                    self.lose_money(railroad.mortgage())
+                    self.lose_money(railroad.unmortgage())
         for util in self.utilities:
             if util.is_mortgaged:
                 if bool(random.getrandbits(1)):
-                    self.lose_money(util.mortgage())
+                    self.lose_money(util.unmortgage())
     
     def destroy_or_not(self): # sell buildings
         for color in self.get_buildable_color_sets():
-            if bool(random.getrandbits(1)):
-                print_with_color(f'speaking of {color} set...', self)
-                for prop in self.get_destroyable_properties_on_color_set(color):
+            for prop in self.get_destroyable_properties_on_color_set(color):
+                if bool(random.getrandbits(1)):
                     cash = prop.destroy_house()
                     self.gain_money(cash)
                     self.net_worth -= cash * 2
