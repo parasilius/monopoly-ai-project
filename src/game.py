@@ -2,8 +2,7 @@ from random import shuffle
 from player import Player
 from board import Board
 from dice import Dice
-from first_agent import FirstAgent
-from second_agent import SecondAgent
+from agent import Agent
 from utilities import clear
 
 class Game:
@@ -30,7 +29,7 @@ class Game:
                 self.winner = player
                 # print(f'{player.name} wins.')
                 break
-            player.turn(self.board, self.dice)
+            player.turn(other_player, self.board, self.dice)
             double_counter = 0
             while self.dice.is_double():
                 double_counter += 1
@@ -39,13 +38,13 @@ class Game:
                     double_counter = 0
                     break
                 else:
-                    player.turn(self.board, self.dice)
+                    player.turn(other_player, self.board, self.dice)
             i = 1 - i
         self.turns = self.players[0].turns + self.players[1].turns
         # print(f'total turns played: {self.turns}')
 
 if __name__ == '__main__':
     player1 = Player('player1')
-    player2 = FirstAgent('player2')
+    player2 = Agent('player2')
     game = Game(player1, player2)
     game.play()

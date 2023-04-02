@@ -29,39 +29,39 @@ class Property(Square):
     available_hotels = 12
 
     @classmethod
-    def add_houses(num: int) -> int:
+    def add_houses(self, num: int) -> int:
         if Property.available_houses + num > 32:
             return -1
         Property.available_houses += num
         return Property.available_houses
 
     @classmethod
-    def remove_houses(num: int) -> int:
+    def remove_houses(self, num: int) -> int:
         if Property.available_houses - num < 0:
             return -1
         Property.available_houses -= num
         return Property.available_houses
 
     @classmethod
-    def add_hotels(num: int) -> int:
+    def add_hotels(self, num: int) -> int:
         if Property.available_hotels + num > 12:
             return -1
         Property.available_hotels += num
         return Property.available_hotels
 
     @classmethod
-    def remove_hotels(num: int) -> int:
+    def remove_hotels(self, num: int) -> int:
         if Property.available_hotels - num < 12:
             return -1
         Property.available_hotels += num
         return Property.available_hotels
     
     @classmethod
-    def get_available_houses() -> int:
+    def get_available_houses(self) -> int:
         return Property.available_houses
     
     @classmethod
-    def get_available_hotels() -> int:
+    def get_available_hotels(self) -> int:
         return Property.available_hotels
 
     def __init__(self, name, color, cost, rents):

@@ -343,7 +343,7 @@ class Player:
         for utility in self.utilities:
             print_with_color(utility, self)
     
-    def turn(self, board: Board, dice: Dice):
+    def turn(self, other_player, board: Board, dice: Dice):
         # self.display()
         self.turns += 1
         if self.is_in_jail():
@@ -358,7 +358,7 @@ class Player:
         print('4: downgrading hotels')
         print('5: mortgaging')
         print('6: unmortgaging')
-        num = input('Choose an operation: [1/2/3/4/5/6] ')
+        num = int(input('Choose an operation: [1/2/3/4/5/6] '))
         match num:
             case 1:
                 self.build_or_not()

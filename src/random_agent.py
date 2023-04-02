@@ -20,7 +20,7 @@ class RandomAgent(Player):
 
     def upgrade_houses_or_not(self):
         for prop in self.get_buildable_properties():
-            if prop.get_number_of_houses() == 4 and Player.get_available_hotels() > 0:
+            if prop.get_number_of_houses() == 4 and Property.get_available_hotels() > 0:
                 if bool(random.getrandbits(1)):
                     cost = prop.upgrade_houses_to_hotel()
                     self.lose_money(cost)
@@ -88,7 +88,7 @@ class RandomAgent(Player):
                     self.net_worth -= cash * 2
                     print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
 
-    def turn(self, board, dice: Dice):
+    def turn(self, other_player, board, dice: Dice):
         # self.display()
         self.turns += 1
         if self.is_in_jail():
