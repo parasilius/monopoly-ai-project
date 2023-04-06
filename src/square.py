@@ -1,10 +1,5 @@
 class Square:
-    '''
-    lprobability: Long Term Probability for Ending Up on the Square(Jail Long)
-    sprobability: Short Term Probability for Ending Up on the Square(Jail Short)
-    '''
-    def __init__(self, cost: int, lprobability: float, sprobability: float):
+    def __init__(self, location, cost: int, lprobability: float, sprobability: float):
+        self.location = location
         self.cost = cost
         self.owner = None
-        self.lprobability = lprobability
-        self.sprobability = sprobability

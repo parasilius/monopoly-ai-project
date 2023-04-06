@@ -1,4 +1,5 @@
 from utility import Utility
+from property import Property
 import copy
 
 class Strategy:
@@ -57,3 +58,328 @@ class Strategy:
             score -= self.reserve_penalty
 
         return score
+
+    def get_heuristic(self, player, other_player, depth=2):
+        if depth == 0 or player.is_bankrupt() or other_player.is_bankrupt():
+            return self.heuristic(player, other_player)
+        bestScore = float('-inf')
+        for prop in player.get_buildable_properties():
+            player_copy = copy.deepcopy(player)
+            cost = prop.build_house()
+            player_copy.lose_money(cost)
+            player_copy.net_worth += cost / 2.0
+            score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+            prop.destroy_house()
+            bestScore = max(score, bestScore)
+        for prop in player.get_destroyable_properties():
+            player_copy = copy.deepcopy(player)
+            cash = prop.destroy_house()
+            player_copy.gain_money(cash)
+            player_copy.net_worth -= cash * 2
+            score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+            prop.build_house()
+            bestScore = max(score, bestScore)
+        for prop in player.get_buildable_properties():
+            if prop.get_number_of_houses() == 4:
+                player_copy = copy.deepcopy(player)
+                cost = prop.upgrade_houses_to_hotel()
+                player_copy.lose_money(cost)
+                player_copy.net_worth += 2 * cost
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                prop.downgrade_hotel_to_houses()
+                bestScore = max(score, bestScore)
+        for prop in player.get_downgradable_properties():
+            player_copy = copy.deepcopy(player)
+            cost = prop.downgrade_hotel_to_houses()
+            player_copy.lose_money(cost)
+            self.net_worth += 8 * cost
+            score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+            prop.upgrade_houses_to_hotel()
+            bestScore = max(score, bestScore)
+        for prop in player.get_properties():
+            if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
+                player_copy = copy.deepcopy(player)
+                player_copy.gain_money(prop.mortgage())
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                prop.unmortgage()
+                bestScore = max(score, bestScore)
+        for railroad in player.railroads:
+            if not railroad.is_mortgaged:
+                player_copy = copy.deepcopy(player)
+                player_copy.gain_money(railroad.mortgage())
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                railroad.unmortgage()
+                bestScore = max(score, bestScore)
+        for util in player.utilities:
+            if not util.is_mortgaged:
+                player_copy = copy.deepcopy(player)
+                player_copy.gain_money(util.mortgage())
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                util.unmortgage()
+                bestScore = max(score, bestScore)
+        for prop in player.get_properties():
+            if prop.is_mortgaged:
+                player_copy = copy.deepcopy(player)
+                player_copy.lose_money(prop.unmortgage())
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                prop.mortgage()
+                bestScore = max(score, bestScore)
+        for railroad in player.railroads:
+            if railroad.is_mortgaged:
+                player_copy = copy.deepcopy(player)
+                player_copy.lose_money(railroad.unmortgage())
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                railroad.mortgage()
+                bestScore = max(score, bestScore)
+        for util in player.utilities:
+            if util.is_mortgaged:
+                player_copy = copy.deepcopy(player)
+                player_copy.lose_money(util.unmortgage())
+                score = player_copy.strategy.get_heuristic(other_player, player_copy, depth - 1)
+                util.mortgage()
+                bestScore = max(score, bestScore)
+        if bestScore == float('-inf'):
+            return 0
+        return bestScore
+
+    def decide(self, player, other_player, board, dice):
+        bestScore = float('-inf')
+        best_buy = None
+        move = 0
+        best_location = None
+        if not player.is_in_jail():
+            dice.roll(player)
+            for buy in [True, False]:
+                first_copy = copy.deepcopy(player)
+                first_copy.action(board, dice, buy)
+                for prop in first_copy.get_buildable_properties():
+                    player_copy = copy.deepcopy(first_copy)
+                    cost = prop.build_house()
+                    player_copy.lose_money(cost)
+                    player_copy.net_worth += cost / 2.0
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    prop.destroy_house()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 0
+                        best_location = prop.location
+                        best_buy = buy
+                for prop in first_copy.get_destroyable_properties():
+                    player_copy = copy.deepcopy(first_copy)
+                    cash = prop.destroy_house()
+                    player_copy.gain_money(cash)
+                    player_copy.net_worth -= cash * 2
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    prop.build_house()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 1
+                        best_location = prop.location
+                        best_buy = buy
+                for prop in first_copy.get_buildable_properties():
+                    if prop.get_number_of_houses() == 4:
+                        player_copy = copy.deepcopy(first_copy)
+                        cost = prop.upgrade_houses_to_hotel()
+                        player_copy.lose_money(cost)
+                        player_copy.net_worth += 2 * cost
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        prop.downgrade_hotel_to_houses()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 2
+                            best_location = prop.location
+                            best_buy = buy
+                for prop in first_copy.get_downgradable_properties():
+                    player_copy = copy.deepcopy(first_copy)
+                    cost = prop.downgrade_hotel_to_houses()
+                    player_copy.lose_money(cost)
+                    self.net_worth += 8 * cost
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    prop.upgrade_houses_to_hotel()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 3
+                        best_location = prop.location
+                        best_buy = buy
+                for prop in first_copy.get_properties():
+                    if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.gain_money(prop.mortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        prop.unmortgage()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 4
+                            best_location = prop.location
+                            best_buy = buy
+                for railroad in first_copy.railroads:
+                    if not railroad.is_mortgaged:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.gain_money(railroad.mortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        railroad.unmortgage()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 4
+                            best_location = railroad.location
+                            best_buy = buy
+                for util in first_copy.utilities:
+                    if not util.is_mortgaged:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.gain_money(util.mortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        util.unmortgage()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 4
+                            best_location = util.location
+                            best_buy = buy
+                for prop in first_copy.get_properties():
+                    if prop.is_mortgaged:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.lose_money(prop.unmortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        prop.mortgage()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 5
+                            best_location = prop.location
+                            best_buy = buy
+                for railroad in first_copy.railroads:
+                    if railroad.is_mortgaged:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.lose_money(railroad.unmortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        prop.mortgage()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 5
+                            best_location = railroad.location
+                            best_buy = buy
+                for util in first_copy.utilities:
+                    if util.is_mortgaged:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.lose_money(util.unmortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        util.mortgage()
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 5
+                            best_location = util.location
+                            best_buy = buy
+        else:
+            for prop in player.get_buildable_properties():
+                player_copy = copy.deepcopy(first_copy)
+                cost = prop.build_house()
+                player_copy.lose_money(cost)
+                player_copy.net_worth += cost / 2.0
+                score = player_copy.strategy.heuristic(player_copy, other_player)
+                prop.destroy_house()
+                if bestScore <= score:
+                    bestScore = score
+                    move = 0
+                    best_location = prop.location
+                    best_buy = buy
+            for prop in player.get_destroyable_properties():
+                player_copy = copy.deepcopy(first_copy)
+                cash = prop.destroy_house()
+                player_copy.gain_money(cash)
+                player_copy.net_worth -= cash * 2
+                score = player_copy.strategy.heuristic(player_copy, other_player)
+                prop.build_house()
+                if bestScore <= score:
+                    bestScore = score
+                    move = 1
+                    best_location = prop.location
+                    best_buy = buy
+            for prop in player.get_buildable_properties():
+                if prop.get_number_of_houses() == 4:
+                    player_copy = copy.deepcopy(first_copy)
+                    cost = prop.upgrade_houses_to_hotel()
+                    player_copy.lose_money(cost)
+                    player_copy.net_worth += 2 * cost
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    prop.downgrade_hotel_to_houses()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 2
+                        best_location = prop.location
+                        best_buy = buy
+            for prop in player.get_downgradable_properties():
+                player_copy = copy.deepcopy(first_copy)
+                cost = prop.downgrade_hotel_to_houses()
+                player_copy.lose_money(cost)
+                self.net_worth += 8 * cost
+                score = player_copy.strategy.heuristic(player_copy, other_player)
+                prop.upgrade_houses_to_hotel()
+                if bestScore <= score:
+                    bestScore = score
+                    move = 3
+                    best_location = prop.location
+                    best_buy = buy
+            for props in player.properties.values():
+                for prop in props:
+                    if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
+                        player_copy = copy.deepcopy(first_copy)
+                        player_copy.gain_money(prop.mortgage())
+                        score = player_copy.strategy.heuristic(player_copy, other_player)
+                        if bestScore <= score:
+                            bestScore = score
+                            move = 4
+                            best_location = prop.location
+                            best_buy = buy
+            for railroad in player.railroads:
+                if not railroad.is_mortgaged:
+                    player_copy = copy.deepcopy(first_copy)
+                    player_copy.gain_money(railroad.mortgage())
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 4
+                        best_location = railroad.location
+                        best_buy = buy
+            for util in player.utilities:
+                if not util.is_mortgaged:
+                    player_copy = copy.deepcopy(first_copy)
+                    player_copy.gain_money(util.mortgage())
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    util.unmortgage()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 4
+                        best_location = util.location
+                        best_buy = buy
+            for prop in player.get_properties():
+                if prop.is_mortgaged:
+                    player_copy = copy.deepcopy(first_copy)
+                    player_copy.lose_money(prop.unmortgage())
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    prop.mortgage()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 5
+                        best_location = prop.location
+                        best_buy = buy
+            for railroad in player.railroads:
+                if railroad.is_mortgaged:
+                    player_copy = copy.deepcopy(first_copy)
+                    player_copy.lose_money(railroad.unmortgage())
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    railroad.mortgage()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 5
+                        best_location = railroad.location
+                        best_buy = buy
+            for util in player.utilities:
+                if util.is_mortgaged:
+                    player_copy = copy.deepcopy(first_copy)
+                    player_copy.lose_money(util.unmortgage())
+                    score = player_copy.strategy.heuristic(player_copy, other_player)
+                    util.mortgage()
+                    if bestScore <= score:
+                        bestScore = score
+                        move = 5
+                        best_location = util.location
+                        best_buy = buy
+        return best_buy, move, best_location

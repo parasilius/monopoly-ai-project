@@ -2,8 +2,9 @@
 from square import Square
 
 class Railroad(Square):
-    def __init__(self, name: str):
+    def __init__(self, location, name: str):
         self.name = name
+        self.location = location
         self.cost = 200
         self.owner = None
         self.mortgage_value = self.cost / 2.0

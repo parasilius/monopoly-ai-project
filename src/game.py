@@ -15,19 +15,23 @@ class Game:
     
     def play(self):
         shuffle(self.players)
-        limit = 10000
+        limit = 1000
         i = 0
-        for _ in range(limit):
+        for j in range(limit):
             # clear()
             player = self.players[i]
             other_player = self.players[1 - i]
             if player.is_bankrupt():
                 self.winner = other_player
-                # print(f'{other_player.name} wins.')
+                print(f'loser, i.e. {player.name} money: {player.money}')
+                print(f'winner, i.e. {other_player.name} money: {other_player.money}')
+                print(f'{other_player.name} wins.')
                 break
             if other_player.is_bankrupt():
                 self.winner = player
-                # print(f'{player.name} wins.')
+                print(f'loser, i.e. {other_player.name} money: {other_player.money}')
+                print(f'winner, i.e. {player.name} money: {player.money}')
+                print(f'{player.name} wins.')
                 break
             player.turn(other_player, self.board, self.dice)
             double_counter = 0

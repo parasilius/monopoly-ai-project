@@ -12,7 +12,8 @@ def evaluate(games_num, player1_class, player2_class):
     player1_wins = 0
     player2_wins = 0
     total_turns = 0.0
-    for _ in tqdm(range(games_num)):
+    i = 0
+    while i < games_num:
         player1 = player1_class('player1')
         player2 = player2_class('player2')
         test_game = game.Game(player1, player2)
@@ -21,7 +22,10 @@ def evaluate(games_num, player1_class, player2_class):
             player1_wins += 1
         elif test_game.winner == player2:
             player2_wins += 1
+        else:
+            continue
         total_turns += test_game.turns
+        i += 1
     print(f'{player1.name} wins {player1_wins} times.')
     print(f'{player2.name} wins {player2_wins} times.')
     print(f'{player1.name} wins {player1_wins * 100.0 / games_num}% of the time.')
@@ -36,6 +40,6 @@ if __name__ == '__main__':
     # play_test_game(player_bot, player_human)
     # ================== AGENT EVALUATION ===============================
     # =========== random agent vs random agent ==========================
-    evaluate(10, RandomAgent, RandomAgent)
+    #evaluate(100, RandomAgent, RandomAgent)
     # =========== random agent vs first agent ============================
-    # evaluate(10000, FirstAgent, SecondAgent)
+    evaluate(100, RandomAgent, Agent)

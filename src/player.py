@@ -7,8 +7,8 @@ from utilities import *
 
 class Player:
     def __init__(self, name: str) -> None:
-        self.money = 1500
-        self.net_worth = 1500
+        self.money = 500
+        self.net_worth = 500
         self.location = 0
         self.in_jail_counter = 0
         self.properties = {
@@ -26,8 +26,13 @@ class Player:
         self.name = name
         self.turns = 0
     
+    def get_properties(self):
+        for props in self.properties.values():
+            for prop in props:
+                yield prop
+
     def is_bankrupt(self) -> bool:
-        return self.net_worth <= 0
+        return self.money <= 0
     
     def get_money(self) -> int:
         return self.money
@@ -120,42 +125,40 @@ class Player:
         return -1
     
     def get_buildable_properties_on_color_set(self, color: str):
-        if Property.available_houses <= 0:
-            return
         if color == 'brown' or color == 'dark blue':
             if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][0].can_build_house():
+                if self.properties[color][0].can_build_house():
                     yield self.properties[color][0]
-                if Property.available_houses > 0 and self.properties[color][1].can_build_house():
+                if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
             elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][1].can_build_house():
+                if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
             elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][0].can_build_house():
+                if self.properties[color][0].can_build_house():
                     yield self.properties[color][0]
         else:
             if self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][0].can_build_house():
+                if self.properties[color][0].can_build_house():
                     yield self.properties[color][0]
-                if Property.available_houses > 0 and self.properties[color][1].can_build_house():
+                if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
-                if Property.available_houses > 0 and self.properties[color][2].can_build_house():
+                if self.properties[color][2].can_build_house():
                     yield self.properties[color][2]
             elif self.properties[color][0].number_of_houses >= self.properties[color][1].number_of_houses == self.properties[color][2].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][1].can_build_house():
+                if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
-                if Property.available_houses > 0 and self.properties[color][2].can_build_house():
+                if self.properties[color][2].can_build_house():
                     yield self.properties[color][2]
             elif self.properties[color][1].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][2].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][0].can_build_house():
+                if self.properties[color][0].can_build_house():
                     yield self.properties[color][0]
-                if Property.available_houses > 0 and self.properties[color][2].can_build_house():
+                if self.properties[color][2].can_build_house():
                     yield self.properties[color][2]
             elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
-                if Property.available_houses > 0 and self.properties[color][0].can_build_house():
+                if self.properties[color][0].can_build_house():
                     yield self.properties[color][0]
-                if Property.available_houses > 0 and self.properties[color][1].can_build_house():
+                if self.properties[color][1].can_build_house():
                     yield self.properties[color][1]
     
     def get_destroyable_properties_on_color_set(self, color: str):
@@ -207,12 +210,17 @@ class Player:
     
     def get_buildable_properties(self):
         for color in self.get_buildable_color_sets():
+            for prop in self.get_buildable_properties_on_color_set(color):
+                yield prop
+    
+    def get_destroyable_properties(self):
+        for color in self.get_buildable_color_sets():
             for prop in self.get_destroyable_properties_on_color_set(color):
                 yield prop
 
     def upgrade_houses_or_not(self):
         for prop in self.get_buildable_properties():
-            if prop.get_number_of_houses() == 4 and Property.get_available_hotels() > 0:
+            if prop.get_number_of_houses() == 4:
                 upgrade_to_hotel = input(f'Upgrade houses in {prop} to a hotel? [y/N] ')
                 if upgrade_to_hotel == 'y':
                     cost = prop.upgrade_houses_to_hotel()

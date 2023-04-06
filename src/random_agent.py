@@ -11,28 +11,29 @@ class RandomAgent(Player):
         return -1
     
     def build_or_not(self):
-        for color in self.get_buildable_color_sets():
+        for prop in self.get_buildable_properties():
             if bool(random.getrandbits(1)):
-                for prop in self.get_buildable_properties_on_color_set(color):
-                    cost = prop.build_house()
-                    self.lose_money(cost)
-                    self.net_worth += cost / 2.0
+                cost = prop.build_house()
+                self.lose_money(cost)
+                self.net_worth += cost / 2.0
+                break
 
     def upgrade_houses_or_not(self):
         for prop in self.get_buildable_properties():
-            if prop.get_number_of_houses() == 4 and Property.get_available_hotels() > 0:
+            if prop.get_number_of_houses() == 4:
                 if bool(random.getrandbits(1)):
                     cost = prop.upgrade_houses_to_hotel()
                     self.lose_money(cost)
                     self.net_worth += 2 * cost
+                    break
  
     def downgrade_hotel_or_not(self):
         for prop in self.get_downgradable_properties():
-            if Property.get_available_houses() > 3:
-                if bool(random.getrandbits(1)):
-                    cost = prop.downgrade_hotel_to_houses()
-                    self.lose_money(cost)
-                    self.net_worth += 8 * cost
+            if bool(random.getrandbits(1)):
+                cost = prop.downgrade_hotel_to_houses()
+                self.lose_money(cost)
+                self.net_worth += 8 * cost
+                break
 
     def jail_decide(self, dice: Dice):
         if bool(random.getrandbits(1)):
@@ -50,43 +51,47 @@ class RandomAgent(Player):
         return True
 
     def mortgage_or_not(self):
-        for props in self.properties.values():
-            for prop in props:
-                if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
-                    if bool(random.getrandbits(1)):
-                        self.gain_money(prop.mortgage())
+        for prop in self.get_properties():
+            if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
+                if bool(random.getrandbits(1)):
+                    self.gain_money(prop.mortgage())
+                    break
         for railroad in self.railroads:
             if not railroad.is_mortgaged:
                 if bool(random.getrandbits(1)):
                     self.gain_money(railroad.mortgage())
+                    break
         for util in self.utilities:
             if not util.is_mortgaged:
                 if bool(random.getrandbits(1)):
                     self.gain_money(util.mortgage())
+                    break
 
     def unmortgage_or_not(self):
-        for props in self.properties.values():
-            for prop in props:
-                if prop.is_mortgaged:
-                    if bool(random.getrandbits(1)):
-                        self.lose_money(prop.unmortgage())
+        for prop in self.get_properties():
+            if prop.is_mortgaged:
+                if bool(random.getrandbits(1)):
+                    self.lose_money(prop.unmortgage())
+                    break
         for railroad in self.railroads:
             if railroad.is_mortgaged:
                 if bool(random.getrandbits(1)):
                     self.lose_money(railroad.unmortgage())
+                    break
         for util in self.utilities:
             if util.is_mortgaged:
                 if bool(random.getrandbits(1)):
                     self.lose_money(util.unmortgage())
-    
+                    break
+ 
     def destroy_or_not(self): # sell buildings
-        for color in self.get_buildable_color_sets():
-            for prop in self.get_destroyable_properties_on_color_set(color):
-                if bool(random.getrandbits(1)):
-                    cash = prop.destroy_house()
-                    self.gain_money(cash)
-                    self.net_worth -= cash * 2
-                    print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
+        for prop in self.get_destroyable_properties():
+            if bool(random.getrandbits(1)):
+                cash = prop.destroy_house()
+                self.gain_money(cash)
+                self.net_worth -= cash * 2
+                print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
+                break
 
     def turn(self, other_player, board, dice: Dice):
         # self.display()
