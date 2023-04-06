@@ -42,4 +42,4 @@ if __name__ == '__main__':
     # =========== random agent vs random agent ==========================
     #evaluate(100, RandomAgent, RandomAgent)
     # =========== random agent vs first agent ============================
-    evaluate(100, RandomAgent, Agent)
+    evaluate(1, RandomAgent, Agent)
