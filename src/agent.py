@@ -60,7 +60,9 @@ class Agent(RandomAgent):
                     best_stay_in_jail = stay_in_jail
             self.jail_decide(dice, best_stay_in_jail)
             #self.jail_decide(dice, True)
+        print('start')
         best_buy, move, best_location = self.strategy.decide(self, other_player, board, dice)
+        print('done')
         if best_buy == None or best_location == None:
             return
         self.action(board, dice, best_buy)

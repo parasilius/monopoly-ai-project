@@ -15,7 +15,7 @@ class Game:
     
     def play(self):
         shuffle(self.players)
-        limit = 1000
+        limit = 100
         i = 0
         for j in range(limit):
             # clear()

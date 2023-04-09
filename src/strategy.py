@@ -150,8 +150,9 @@ class Strategy:
         if not player.is_in_jail():
             dice.roll(player)
             for buy in [True, False]:
+                board_copy = copy.deepcopy(board)
                 first_copy = copy.deepcopy(player)
-                first_copy.action(board, dice, buy)
+                first_copy.action(board_copy, dice, buy)
                 for prop in first_copy.get_buildable_properties():
                     player_copy = copy.deepcopy(first_copy)
                     cost = prop.build_house()
@@ -250,7 +251,7 @@ class Strategy:
                         player_copy = copy.deepcopy(first_copy)
                         player_copy.lose_money(railroad.unmortgage())
                         score = player_copy.strategy.get_heuristic(player_copy, other_player)
-                        prop.mortgage()
+                        railroad.mortgage()
                         if bestScore <= score:
                             bestScore = score
                             move = 5
@@ -268,6 +269,7 @@ class Strategy:
                             best_location = util.location
                             best_buy = buy
         else:
+            first_copy = copy.deepcopy(player)
             for prop in player.get_buildable_properties():
                 player_copy = copy.deepcopy(first_copy)
                 cost = prop.build_house()
@@ -279,7 +281,6 @@ class Strategy:
                     bestScore = score
                     move = 0
                     best_location = prop.location
-                    best_buy = buy
             for prop in player.get_destroyable_properties():
                 player_copy = copy.deepcopy(first_copy)
                 cash = prop.destroy_house()
@@ -291,7 +292,6 @@ class Strategy:
                     bestScore = score
                     move = 1
                     best_location = prop.location
-                    best_buy = buy
             for prop in player.get_buildable_properties():
                 if prop.get_number_of_houses() == 4:
                     player_copy = copy.deepcopy(first_copy)
@@ -304,7 +304,6 @@ class Strategy:
                         bestScore = score
                         move = 2
                         best_location = prop.location
-                        best_buy = buy
             for prop in player.get_downgradable_properties():
                 player_copy = copy.deepcopy(first_copy)
                 cost = prop.downgrade_hotel_to_houses()
@@ -316,7 +315,6 @@ class Strategy:
                     bestScore = score
                     move = 3
                     best_location = prop.location
-                    best_buy = buy
             for props in player.properties.values():
                 for prop in props:
                     if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
@@ -327,7 +325,6 @@ class Strategy:
                             bestScore = score
                             move = 4
                             best_location = prop.location
-                            best_buy = buy
             for railroad in player.railroads:
                 if not railroad.is_mortgaged:
                     player_copy = copy.deepcopy(first_copy)
@@ -337,7 +334,6 @@ class Strategy:
                         bestScore = score
                         move = 4
                         best_location = railroad.location
-                        best_buy = buy
             for util in player.utilities:
                 if not util.is_mortgaged:
                     player_copy = copy.deepcopy(first_copy)
@@ -348,7 +344,6 @@ class Strategy:
                         bestScore = score
                         move = 4
                         best_location = util.location
-                        best_buy = buy
             for prop in player.get_properties():
                 if prop.is_mortgaged:
                     player_copy = copy.deepcopy(first_copy)
@@ -359,7 +354,6 @@ class Strategy:
                         bestScore = score
                         move = 5
                         best_location = prop.location
-                        best_buy = buy
             for railroad in player.railroads:
                 if railroad.is_mortgaged:
                     player_copy = copy.deepcopy(first_copy)
@@ -370,7 +364,6 @@ class Strategy:
                         bestScore = score
                         move = 5
                         best_location = railroad.location
-                        best_buy = buy
             for util in player.utilities:
                 if util.is_mortgaged:
                     player_copy = copy.deepcopy(first_copy)
@@ -381,5 +374,4 @@ class Strategy:
                         bestScore = score
                         move = 5
                         best_location = util.location
-                        best_buy = buy
         return best_buy, move, best_location
