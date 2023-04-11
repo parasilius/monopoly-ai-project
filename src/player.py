@@ -32,7 +32,7 @@ class Player:
                 yield prop
 
     def is_bankrupt(self) -> bool:
-        return self.money <= 0
+        return self.net_worth <= 0
     
     def get_money(self) -> int:
         return self.money
@@ -352,7 +352,7 @@ class Player:
             print_with_color(utility, self)
     
     def turn(self, other_player, board: Board, dice: Dice):
-        # self.display()
+        self.display()
         self.turns += 1
         if self.is_in_jail():
             self.jail_decide(dice)

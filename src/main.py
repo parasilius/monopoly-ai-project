@@ -22,8 +22,8 @@ def evaluate(games_num, player1_class, player2_class):
             player1_wins += 1
         elif test_game.winner == player2:
             player2_wins += 1
-        else:
-            continue
+        #else:
+         #   continue
         total_turns += test_game.turns
         i += 1
     print(f'{player1.name} wins {player1_wins} times.')
@@ -41,6 +41,7 @@ if __name__ == '__main__':
     # ================== AGENT EVALUATION ===============================
     # =========== random agent vs random agent ==========================
     #evaluate(100, RandomAgent, RandomAgent)
-    # =========== random agent vs first agent ============================
-    evaluate(5, RandomAgent, Agent)
-    #evaluate(1, Agent, Agent)
+    # =========== random agent vs agent ============================
+    #evaluate(5, RandomAgent, Agent)
+    # =========== agent vs agent ============================
+    evaluate(1, Agent, Agent)

@@ -15,9 +15,9 @@ class Game:
     
     def play(self):
         shuffle(self.players)
-        limit = 100
+        limit = 500
         i = 0
-        for j in range(limit):
+        while True:
             # clear()
             player = self.players[i]
             other_player = self.players[1 - i]
