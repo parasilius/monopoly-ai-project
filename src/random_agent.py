@@ -35,20 +35,10 @@ class RandomAgent(Player):
                 self.net_worth += 8 * cost
                 break
 
-    def jail_decide(self, dice: Dice):
+    def jail_decide(self):
         if bool(random.getrandbits(1)):
             self.lose_money(50)
             self.get_out_of_jail()
-        else:
-            dice.roll(self)
-            if dice.is_double():
-                self.get_out_of_jail()
-            elif self.jail_times_increment() > 2:
-                self.lose_money(50)
-                self.get_out_of_jail()
-            else:
-                return False
-        return True
 
     def mortgage_or_not(self):
         for prop in self.get_properties():
@@ -97,9 +87,12 @@ class RandomAgent(Player):
         # self.display()
         self.turns += 1
         if self.is_in_jail():
-            self.jail_decide(dice)
+            self.jail_decide()
+        dice.roll(self)
+        if self.is_in_jail() and (dice.is_double() or self.jail_times_increment() > 2):
+            self.lose_money(50)
+            self.get_out_of_jail()
         if not self.is_in_jail():
-            dice.roll(self)
             self.action(board, dice)
         num = random.randint(1, 6)
         match num:

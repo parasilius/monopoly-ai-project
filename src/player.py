@@ -74,21 +74,11 @@ class Player:
         self.in_jail_counter = 0
         print_with_color(f'{self.name} just got out of jail.', self)
 
-    def jail_decide(self, dice: Dice) -> bool:
+    def jail_decide(self):
         check = input('Give 50$ to get out of jail? [y/N] ')
         if check == 'y':
             self.lose_money(50)
             self.get_out_of_jail()
-        else:
-            dice.roll(self)
-            if dice.is_double():
-                self.get_out_of_jail()
-            elif self.jail_times_increment() > 2:
-                self.lose_money(50)
-                self.get_out_of_jail()
-            else:
-                return False
-        return True
     
     def check_has_all_in_color_set(self, color: str) -> bool:
         if color == 'brown' or color == 'dark blue':
@@ -186,22 +176,6 @@ class Player:
             elif self.properties[color][2].number_of_houses >= self.properties[color][0].number_of_houses == self.properties[color][1].number_of_houses:
                 yield self.properties[color][2]
     
-    def build_or_not(self):
-        color_sets = ['brown', 'light blue', 'pink', 'orange', 'red', 'yellow', 'green', 'dark blue']
-        available_color_sets = []
-        for color in color_sets:
-            if self.check_has_all_in_color_set(color):
-                available_color_sets.append(color)
-        for color in available_color_sets:
-            print_with_color(f'speaking of {color} set...', self)
-            for prop in self.get_buildable_properties_on_color_set(color):
-                build_house_on_property = input(f'Build house on property {prop}? [y/N] ')
-                if build_house_on_property == 'y':
-                    cost = prop.build_house()
-                    self.lose_money(cost)
-                    self.net_worth += cost / 2.0
-                    print_with_color(f'{self.name} paid {cost}$ for {prop}.', self)
-    
     def get_buildable_color_sets(self): # do we need get_buildable_properties instead?!
         color_sets = ['brown', 'light blue', 'pink', 'orange', 'red', 'yellow', 'green', 'dark blue']
         for color in color_sets:
@@ -212,7 +186,17 @@ class Player:
         for color in self.get_buildable_color_sets():
             for prop in self.get_buildable_properties_on_color_set(color):
                 yield prop
-    
+
+    def build_or_not(self):
+        for prop in self.get_buildable_properties():
+            build_house_on_property = input(f'Build house on property {prop}? [y/N] ')
+            if build_house_on_property == 'y':
+                cost = prop.build_house()
+                self.lose_money(cost)
+                self.net_worth += cost / 2.0
+                print_with_color(f'{self.name} paid {cost}$ for {prop}.', self)
+                break
+
     def get_destroyable_properties(self):
         for color in self.get_buildable_color_sets():
             for prop in self.get_destroyable_properties_on_color_set(color):
@@ -227,6 +211,7 @@ class Player:
                     self.lose_money(cost)
                     self.net_worth += 2 * cost
                     print_with_color(f'{self.name} upgraded houses on {prop} to a hotel for {cost}$.', self)
+                    break
 
     def get_downgradable_properties(self):
         for color in self.get_buildable_color_sets():
@@ -258,48 +243,44 @@ class Player:
                     self.lose_money(cost)
                     self.net_worth += 8 * cost
                     print_with_color(f'{self.name} downgraded the hotel on {prop} to 4 houses for {cost}$.')
+                    break
 
     def destroy_or_not(self): # sell buildings
-        color_sets = ['brown', 'light blue', 'pink', 'orange', 'red', 'yellow', 'green', 'dark blue']
-        available_color_sets = []
-        for color in color_sets:
-            if self.check_has_all_in_color_set(color):
-                available_color_sets.append(color)
-        for color in available_color_sets:
-            print_with_color(f'speaking of {color} set...', self)
-            for prop in self.get_destroyable_properties_on_color_set(color):
-                destroy_house_on_property = input(f'Destroy house on {prop}?[y/N] ')
-                if destroy_house_on_property == 'y':
-                    cash = prop.destroy_house()
-                    self.gain_money(cash)
-                    self.net_worth -= cash * 2
-                    print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
+        for prop in self.get_destroyable_properties():
+            destroy_house_on_property = input(f'Destroy house on {prop}? [y/N] ')
+            if destroy_house_on_property == 'y':
+                cash = prop.destroy_house()
+                self.gain_money(cash)
+                self.net_worth -= cash * 2
+                print_with_color(f'{self.name} sold a house on {prop} for {cash}$.', self)
+                break
 
     def mortgage_or_not(self):
-        for props in self.properties.values():
-            for prop in props:
-                if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
-                    to_mortgage = input(f'Mortgage {prop}? [y/N] ')
-                    if to_mortgage == 'y':
-                        self.gain_money(prop.mortgage())
+        for prop in self.get_properties():
+            if not prop.is_mortgaged and prop.number_of_houses == 0 and prop.number_of_hotels == 0:
+                to_mortgage = input(f'Mortgage {prop}? [y/N] ')
+                if to_mortgage == 'y':
+                    self.gain_money(prop.mortgage())
+                    break
         for railroad in self.railroads:
             if not railroad.is_mortgaged:
                 to_mortgage = input(f'Mortgage {railroad}? [y/N] ')
                 if to_mortgage == 'y':
                     self.gain_money(railroad.mortgage())
+                    break
         for util in self.utilities:
             if not util.is_mortgaged:
                 to_mortgage = input(f'Mortgage {util}? [y/N] ')
                 if to_mortgage == 'y':
                     self.gain_money(util.mortgage())
+                    break
     
     def unmortgage_or_not(self):
-        for props in self.properties.values():
-            for prop in props:
-                if prop.is_mortgaged:
-                    to_mortgage = input(f'Unmortgage {prop}? [y/N] ')
-                    if to_mortgage == 'y':
-                        self.lose_money(prop.unmortgage())
+        for prop in self.get_properties():
+            if prop.is_mortgaged:
+                to_mortgage = input(f'Unmortgage {prop}? [y/N] ')
+                if to_mortgage == 'y':
+                    self.lose_money(prop.unmortgage())
         for railroad in self.railroads:
             if railroad.is_mortgaged:
                 to_mortgage = input(f'Unmortgage {railroad}? [y/N] ')
@@ -355,9 +336,12 @@ class Player:
         self.display()
         self.turns += 1
         if self.is_in_jail():
-            self.jail_decide(dice)
+            self.jail_decide()
+        dice.roll(self)
+        if self.is_in_jail() and (dice.is_double() or self.jail_times_increment() > 2):
+            self.lose_money(50)
+            self.get_out_of_jail()
         if not self.is_in_jail():
-            dice.roll(self)
             self.action(board, dice)
         print('Operations:')
         print('1: building a house')

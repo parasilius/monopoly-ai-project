@@ -10,20 +10,10 @@ from strategy import Strategy
 from property import Property
 
 class Agent(RandomAgent):
-    def jail_decide(self, dice: Dice, stay_in_jail: bool):
+    def jail_decide(self, stay_in_jail: bool):
         if not stay_in_jail:
             self.lose_money(50)
             self.get_out_of_jail()
-        else:
-            dice.roll(self)
-            if dice.is_double():
-                self.get_out_of_jail()
-            elif self.jail_times_increment() > 2:
-                self.lose_money(50)
-                self.get_out_of_jail()
-            else:
-                return False
-        return True
 
     def buy_or_not(self, item, buy) -> int:
         if buy:
@@ -47,46 +37,52 @@ class Agent(RandomAgent):
             self.pay_rent(item)
 
     def turn(self, other_player: Player, board: Board, dice: Dice):
-        # self.display()
+        self.display()
         self.strategy = Strategy(400, 2, 3, 5)
         self.turns += 1
         bestScore = float('-inf')
         best_stay_in_jail = True
+        move = None
         if self.is_in_jail():
             for stay_in_jail in [True, False]:
                 score = self.strategy.get_jail_heuristic(self, other_player, 1, board, stay_in_jail)
                 if score >= bestScore:
                     bestScore = score
                     best_stay_in_jail = stay_in_jail
-            self.jail_decide(dice, best_stay_in_jail)
-            #self.jail_decide(dice, True)
-        print('start')
-        best_buy, move, best_location = self.strategy.decide(self, other_player, board, dice)
-        print('done')
-        if best_buy == None or best_location == None:
-            return
-        self.action(board, dice, best_buy)
-        match move:
-            case 0:
-                cost = board.map[best_location].build_house()
-                self.lose_money(cost)
-                self.net_worth += cost / 2.0
-            case 1:
-                cash = board.map[best_location].destroy_house()
-                self.gain_money(cash)
-                self.net_worth -= cash * 2
-            case 2:
-                cost = board.map[best_location].upgrade_houses_to_hotel()
-                self.lose_money(cost)
-                self.net_worth += 2 * cost
-            case 3:
-                cost = board.map[best_location].downgrade_hotel_to_houses()
-                self.lose_money(cost)
-                self.net_worth += 8 * cost
-            case 4:
-                self.gain_money(board.map[best_location].mortgage())
-            case 5:
-                self.lose_money(board.map[best_location].unmortgage())
+            self.jail_decide(best_stay_in_jail)
+        dice.roll(self)
+        if self.is_in_jail() and (dice.is_double() or self.jail_times_increment() > 2):
+            self.lose_money(50)
+            self.get_out_of_jail()
+        if not self.is_in_jail():
+            print('start')
+            best_buy, move, best_location = self.strategy.decide(self, other_player, board, dice)
+            print('done')
+            if best_buy == None or best_location == None:
+                return
+            self.action(board, dice, best_buy)
+        if move is not None:
+            match move:
+                case 0:
+                    cost = board.map[best_location].build_house()
+                    self.lose_money(cost)
+                    self.net_worth += cost / 2.0
+                case 1:
+                    cash = board.map[best_location].destroy_house()
+                    self.gain_money(cash)
+                    self.net_worth -= cash * 2
+                case 2:
+                    cost = board.map[best_location].upgrade_houses_to_hotel()
+                    self.lose_money(cost)
+                    self.net_worth += 2 * cost
+                case 3:
+                    cost = board.map[best_location].downgrade_hotel_to_houses()
+                    self.lose_money(cost)
+                    self.net_worth += 8 * cost
+                case 4:
+                    self.gain_money(board.map[best_location].mortgage())
+                case 5:
+                    self.lose_money(board.map[best_location].unmortgage())
 
 if __name__ == '__main__':
     board = Board()
