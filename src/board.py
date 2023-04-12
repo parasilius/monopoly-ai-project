@@ -20,8 +20,8 @@ class Board:
         self.map[12] = Utility(12, 'Electric Company')
         self.map[28] = Utility(28, 'Water Works')
 
-        self.map[4] = Square(4, 200, lprobabilities[4], sprobabilities[4]) # Income Tax
-        self.map[38] = Square(38, 100, lprobabilities[38], sprobabilities[38]) # Luxury Tax
+        self.map[4] = Square(4, 200) # Income Tax
+        self.map[38] = Square(38, 100) # Luxury Tax
 
     def get_item_at_location(self, location: int):
         return self.map[location]

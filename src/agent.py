@@ -83,13 +83,3 @@ class Agent(RandomAgent):
                     self.gain_money(board.map[best_location].mortgage())
                 case 5:
                     self.lose_money(board.map[best_location].unmortgage())
-
-if __name__ == '__main__':
-    board = Board()
-    player1 = Agent('player1')
-    player2 = Agent('player2')
-    board.map[13].owner = player2
-    board.map[19].owner = player2
-    board.map[16].owner = player1
-    player2.location = 10
-    score = player2.get_jail_heuristic(player1, 1, board, False)
