@@ -197,15 +197,11 @@ class Strategy:
             bestScore = float('-inf')
             for get_score_function in self.get_score_generate():
                 bestScore = get_score_function(player, other_player, depth - 1, bestScore, 'expMin')
-            if bestScore == float('-inf'):
-                return 0
             return bestScore
         elif node == 'min':
             bestScore = float('inf')
             for get_score_function in self.get_score_generate():
                 bestScore = get_score_function(other_player, player, depth - 1, bestScore, 'expMax')
-            if bestScore == float('inf'):
-                return 0
             return bestScore
         elif node == 'expMax':
             bestScore = 0
@@ -230,7 +226,7 @@ class Strategy:
 
     def decide(self, player, other_player, board, dice):
         bestScore = float('-inf')
-        best_buy = None
+        best_buy = True
         move = None
         best_location = None
         for buy in [True, False]:

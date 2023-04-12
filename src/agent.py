@@ -58,9 +58,9 @@ class Agent(RandomAgent):
             print('start')
             best_buy, move, best_location = self.strategy.decide(self, other_player, board, dice)
             print('done')
-            if best_buy == None or best_location == None:
-                return
             self.action(board, dice, best_buy)
+            if best_location == None:
+                return
         if move is not None:
             match move:
                 case 0:
