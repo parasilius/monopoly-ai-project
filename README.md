@@ -1,4 +1,3 @@
-# Monopoly
 ![monopoly](images/monop.gif)
 ## Limitations
 + Only two players can play.
