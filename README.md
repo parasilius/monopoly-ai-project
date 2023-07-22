@@ -25,8 +25,7 @@ owned by the opponent, they have to pay rent.
 + Each street has a rent depending on its color and if a player buys all of the properties, the rent will be doubled.
 If houses or hotels are built on a street, the rent will be calculated using [this information](https://en.wikibooks.org/w/index.php?title=Monopoly/Properties_reference&oldid=4219992).
 + Houses can be built on streets of color set if and only if all the streets of the color set are already 
-owned by the player and none of them are mortgaged. House costs are based on [this information](https://www.monopolyland.com/buying-
-houses-rules/).
+owned by the player and none of them are mortgaged. House costs are based on [this information](https://www.monopolyland.com/buying-houses-rules/).
 Each street is allowed to have at most one more house than other streets in the color set and cannot exceed four houses.
 + Four houses can be upgraded to a hotel. It costs four houses and the cost of the hotel, hotel cost 
 being the same as the house cost on the street.
